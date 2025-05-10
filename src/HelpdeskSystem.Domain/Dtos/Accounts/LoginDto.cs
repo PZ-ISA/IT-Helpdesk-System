@@ -1,4 +1,4 @@
-namespace HelpdeskSystem.Domain.Dtos.Account;
+namespace HelpdeskSystem.Domain.Dtos.Accounts;
 
 public sealed record LoginDto
 {

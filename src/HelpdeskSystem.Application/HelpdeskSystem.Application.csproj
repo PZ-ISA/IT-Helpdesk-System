@@ -15,10 +15,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HelpdeskSystem.Domain\HelpdeskSystem.Domain.csproj" />
+    <ProjectReference Include="..\HelpdeskSystem.Infrastructure\HelpdeskSystem.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Validators\" />
+    <Folder Include="Validators\Accounts\" />
   </ItemGroup>
 
 </Project>
