@@ -5,7 +5,7 @@ namespace HelpdeskSystem.Application.Seeders;
 
 public static class RolesSeeder
 {
-    public static async Task SeedAsync(RoleManager<IdentityRole> roleManager)
+    public static async Task SeedAsync(RoleManager<IdentityRole<Guid>> roleManager)
     {
         foreach (var role in Roles.RolesNames)
         {
@@ -14,7 +14,7 @@ public static class RolesSeeder
                 continue;
             }
             
-            await roleManager.CreateAsync(new IdentityRole(role));
+            await roleManager.CreateAsync(new IdentityRole<Guid>(role));
         }
     }
 }

@@ -1,5 +1,6 @@
 using FluentValidation;
 using HelpdeskSystem.Application.Common;
+using HelpdeskSystem.Application.Middleware;
 using HelpdeskSystem.Application.Services;
 using HelpdeskSystem.Application.Validators.Accounts;
 using HelpdeskSystem.Domain.Interfaces;
@@ -14,11 +15,15 @@ public static class Setup
 {
     public static void AddApplicationLogic(this IHostApplicationBuilder builder, IConfiguration configuration)
     {
+        
         var jwtOptions = configuration.GetSection("JwtSettings").Get<JwtOptions>();
         if (jwtOptions == null)
         {
             throw new InvalidConfigurationException("JWTSettings not found in configuration");
         }
+
+        builder.Services.AddProblemDetails();
+        builder.Services.AddExceptionHandler<CustomExceptionHandler>();
         
         builder.Services.AddSingleton(jwtOptions);
 

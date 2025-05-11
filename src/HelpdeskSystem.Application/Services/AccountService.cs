@@ -4,6 +4,7 @@ using System.Text;
 using HelpdeskSystem.Application.Common;
 using HelpdeskSystem.Domain.Dtos.Accounts;
 using HelpdeskSystem.Domain.Entities;
+using HelpdeskSystem.Domain.Exceptions;
 using HelpdeskSystem.Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -13,12 +14,14 @@ namespace HelpdeskSystem.Application.Services;
 public class AccountService : IAccountService
 {
     private readonly UserManager<User> _userManager;
+    private readonly RoleManager<IdentityRole<Guid>> _roleManager;
     private readonly JwtOptions _jwtOptions;
     
-    public AccountService(UserManager<User> userManager, JwtOptions jwtOptions)
+    public AccountService(UserManager<User> userManager, JwtOptions jwtOptions, RoleManager<IdentityRole<Guid>> roleManager)
     {
         _userManager = userManager;
         _jwtOptions = jwtOptions;
+        _roleManager = roleManager;
     }
     
     public async Task<string> LoginAsync(LoginDto dto, CancellationToken ct)
@@ -26,7 +29,7 @@ public class AccountService : IAccountService
         var user = await _userManager.FindByEmailAsync(dto.Email);
         if (user == null || !await _userManager.CheckPasswordAsync(user, dto.Password))
         {
-            return null;
+            throw new BadRequestException("Incorrect email or password");
         }
         
         var roles = await _userManager.GetRolesAsync(user);
@@ -61,8 +64,10 @@ public class AccountService : IAccountService
 
     public async Task RegisterAsync(RegisterDto dto, CancellationToken ct)
     {
-        if(await _userManager.FindByEmailAsync(dto.Email) is not null)
-            return;
+        if (await _userManager.FindByEmailAsync(dto.Email) is not null)
+        {
+            throw new BadRequestException("Email is already taken");
+        }
 
         var user = new User
         {
@@ -73,9 +78,20 @@ public class AccountService : IAccountService
             IsActive = false,
         };
         
+        var role = dto.Role ?? "User";
+        if (!await _roleManager.RoleExistsAsync(role))
+        {
+            throw new BadRequestException($"Role '{role}' does not exist.");
+        }
+        
         var result = await _userManager.CreateAsync(user, dto.Password);
         
-        var role = dto.Role ?? "User";
+        if (!result.Succeeded)
+        {
+            var errors = string.Join("; ", result.Errors.Select(e => e.Description));
+            throw new BadRequestException(errors);
+        }
+        
         await _userManager.AddToRoleAsync(user, role);
     }
 }

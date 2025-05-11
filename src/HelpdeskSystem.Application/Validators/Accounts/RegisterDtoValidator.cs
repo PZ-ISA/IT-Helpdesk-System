@@ -9,23 +9,23 @@ public class RegisterDtoValidator : AbstractValidator<RegisterDto>
     public RegisterDtoValidator()
     {
         RuleFor(x => x.Name)
-            .MaximumLength(25)
             .NotEmpty()
+            .MaximumLength(25)
             .WithMessage("Name field is required with max length of 25 characters");
         
         RuleFor(x => x.Surname)
-            .Length(25)
             .NotEmpty()
+            .MaximumLength(25)
             .WithMessage("Surname field is required with max length of 25 characters");
         
         RuleFor(x => x.Email)
-            .EmailAddress()
             .NotEmpty()
+            .EmailAddress()
             .WithMessage("Email field is required and must be type of email address");
 
         RuleFor(x => x.ConfirmPassword)
-            .Equal(x => x.Password)
             .NotEmpty()
+            .Equal(x => x.Password)
             .WithMessage("Passwords do not match");
 
         RuleFor(x => x.Role)
@@ -35,6 +35,7 @@ public class RegisterDtoValidator : AbstractValidator<RegisterDto>
                 {
                     context.AddFailure("Role", $"Role does not exist. Role must be in {string.Join(",", Roles.RolesNames)}");
                 }
-            });
+            })
+            .When(x => x.Role is not null);
     }
 }

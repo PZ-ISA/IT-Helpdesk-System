@@ -24,6 +24,9 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseExceptionHandler();
+app.UseStatusCodePages();
+
 app.RegisterEndpoints();
 
 await app.SeedAsync();

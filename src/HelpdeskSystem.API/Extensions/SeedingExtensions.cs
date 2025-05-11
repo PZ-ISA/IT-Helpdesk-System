@@ -11,7 +11,7 @@ public static class SeedingExtensions
         await using var scope = app.Services.CreateAsyncScope();
 
         await using var context = scope.ServiceProvider.GetRequiredService<HelpdeskDbContext>();
-        using var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        using var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
         
         await context.Database.EnsureCreatedAsync();
         
