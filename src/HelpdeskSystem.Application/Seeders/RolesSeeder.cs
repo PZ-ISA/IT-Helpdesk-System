@@ -1,15 +1,13 @@
+using HelpdeskSystem.Application.Common;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace HelpdeskSystem.Application.Seeders;
 
 public static class RolesSeeder
 {
-    private static readonly string[] Roles = [ "Admin", "User" ];
-    
     public static async Task SeedAsync(RoleManager<IdentityRole> roleManager)
     {
-        foreach (var role in Roles)
+        foreach (var role in Roles.RolesNames)
         {
             if (await roleManager.RoleExistsAsync(role))
             {

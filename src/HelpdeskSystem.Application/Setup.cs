@@ -1,5 +1,7 @@
+using FluentValidation;
 using HelpdeskSystem.Application.Common;
 using HelpdeskSystem.Application.Services;
+using HelpdeskSystem.Application.Validators.Accounts;
 using HelpdeskSystem.Domain.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,8 +21,10 @@ public static class Setup
         }
         
         builder.Services.AddSingleton(jwtOptions);
-        
-        builder.Services.AddHttpContextAccessor();
+
+        builder.Services.AddValidatorsFromAssemblyContaining<RegisterDtoValidator>();
+
         builder.Services.AddScoped<IUserContextService, UserContextService>();
+        builder.Services.AddScoped<IAccountService, AccountService>();
     }
 }

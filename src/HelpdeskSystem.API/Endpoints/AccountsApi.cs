@@ -1,4 +1,6 @@
+using HelpdeskSystem.API.Extensions;
 using HelpdeskSystem.Application.Services;
+using HelpdeskSystem.Application.Validators.Accounts;
 using HelpdeskSystem.Domain.Dtos.Accounts;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,7 +19,8 @@ public static class AccountsApi
             await accountService.RegisterAsync(dto, ct);
             
             return Results.Ok();
-        });
+        })
+        .WithRequestValidation<RegisterDto>();
         
 
         group.MapPost("/login", async (AccountService accountService, [FromBody] LoginDto dto, CancellationToken ct) =>
