@@ -1,6 +1,5 @@
 using HelpdeskSystem.API.Extensions;
 using HelpdeskSystem.Application;
-using HelpdeskSystem.Application.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,5 +20,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.RegisterEndpoints();
+
+await app.SeedAsync();
 
 app.Run();

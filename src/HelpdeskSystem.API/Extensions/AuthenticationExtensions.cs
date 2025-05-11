@@ -7,7 +7,7 @@ namespace HelpdeskSystem.API.Extensions;
 
 public static class AuthenticationExtensions
 {
-    public static IServiceCollection AddJwtAuthentication(this IServiceCollection services)
+    public static void AddJwtAuthentication(this IServiceCollection services)
     {
         using var serviceProvider = services.BuildServiceProvider();
         var jwtOptions = serviceProvider.GetRequiredService<JwtOptions>();
@@ -33,7 +33,5 @@ public static class AuthenticationExtensions
                     new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Secret))
             };
         });
-        
-        return services;
     }
 }
