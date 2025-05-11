@@ -7,7 +7,7 @@ namespace HelpdeskSystem.API.Extensions;
 
 public static class DatabaseExtensions
 {
-    public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
+    public static void AddDatabase(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<HelpdeskDbContext>(options => 
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
@@ -16,7 +16,5 @@ public static class DatabaseExtensions
         services.AddIdentity<User, IdentityRole<Guid>>()
             .AddEntityFrameworkStores<HelpdeskDbContext>()
             .AddDefaultTokenProviders();
-        
-        return services;
     }
 }

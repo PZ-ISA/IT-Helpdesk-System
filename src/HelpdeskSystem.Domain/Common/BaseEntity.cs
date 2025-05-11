@@ -6,8 +6,8 @@ namespace HelpdeskSystem.Domain.Common;
 public abstract record BaseEntity
 {
     public Guid Id { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 }
 
 public class BaseEntityConfiguration<T> : IEntityTypeConfiguration<T> where T : BaseEntity

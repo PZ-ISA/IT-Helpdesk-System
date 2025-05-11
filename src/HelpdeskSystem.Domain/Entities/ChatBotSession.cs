@@ -8,7 +8,7 @@ namespace HelpdeskSystem.Domain.Entities;
 public sealed record ChatBotSession : BaseEntity
 {
     public Feedback Feedback { get; set; }
-    public DateTime? EndDate { get; set; }
+    public DateTimeOffset? EndDate { get; set; }
     public Guid UserId { get; set; }
 
     public User? User { get; set; }
