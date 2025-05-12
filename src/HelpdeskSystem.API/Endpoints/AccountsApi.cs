@@ -11,7 +11,8 @@ public static class AccountsApi
     {
         var group = app.MapGroup("/api")
             .WithTags("Accounts")
-            .AllowAnonymous();
+            .AllowAnonymous()
+            .WithOpenApi();
 
         group.MapPost("/register", async (IAccountService accountService, [FromBody] RegisterDto registerDto, CancellationToken ct) =>
         {
@@ -19,14 +20,15 @@ public static class AccountsApi
 
             return Results.Ok();
         })
-        .WithRequestValidation<RegisterDto>();
-
+        .WithRequestValidation<RegisterDto>()
+        .Produces(StatusCodes.Status200OK);
 
         group.MapPost("/login", async (IAccountService accountService, [FromBody] LoginDto loginDto, CancellationToken ct) =>
         {
             var result = await accountService.LoginAsync(loginDto, ct);
-            
+
             return Results.Ok(result);
-        });
+        })
+        .Produces<string>(StatusCodes.Status200OK, "application/json");
     }
 }
