@@ -1,5 +1,6 @@
 using HelpdeskSystem.API.Extensions;
 using HelpdeskSystem.Application;
+using HelpdeskSystem.Application.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,9 @@ builder.Services.AddOpenApiDocumentation();
 
 var app = builder.Build();
 
+app.UseMiddleware<ErrorHandlingMiddleware>();
+//app.UseExceptionHandler();
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -27,9 +31,6 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.UseExceptionHandler();
-app.UseStatusCodePages();
 
 app.RegisterEndpoints();
 

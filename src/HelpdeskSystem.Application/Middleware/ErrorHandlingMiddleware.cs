@@ -1,13 +1,27 @@
 using HelpdeskSystem.Application.Common;
 using HelpdeskSystem.Domain.Exceptions;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 
 namespace HelpdeskSystem.Application.Middleware;
 
-public class CustomExceptionHandler : IExceptionHandler
+public class ErrorHandlingMiddleware : IMiddleware
 {
-    public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
+    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+    {
+        try
+        {
+            await next.Invoke(context);
+        }
+        catch (Exception exception)
+        {
+            var problemDetails = ToErrorProblemDetails(exception, context);
+            context.Response.StatusCode = (int)problemDetails.Status!;
+            
+            await context.Response.WriteAsJsonAsync(problemDetails);
+        }
+    }
+
+    private ErrorProblemDetails ToErrorProblemDetails(Exception exception, HttpContext context)
     {
         var status = exception switch
         {
@@ -16,19 +30,16 @@ public class CustomExceptionHandler : IExceptionHandler
             ForbidException => StatusCodes.Status403Forbidden,
             _ => StatusCodes.Status500InternalServerError
         };
-        httpContext.Response.StatusCode = status;
-
+        
         var problemDetails = new ErrorProblemDetails
         {
             Status = status,
             Title = "An error occurred",
             Type = exception.GetType().Name,
             Detail = exception.Message,
-            Instance = httpContext.Request.Path,
+            Instance = context.Request.Path,
         };
-
-        await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
-
-        return true;
+        
+        return problemDetails;
     }
 }
