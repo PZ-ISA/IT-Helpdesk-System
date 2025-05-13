@@ -22,6 +22,8 @@ public static class Setup
             throw new InvalidConfigurationException("JWTSettings not found in configuration");
         }
 
+        builder.Services.AddSingleton(TimeProvider.System);
+        
         //builder.Services.AddProblemDetails();
         //builder.Services.AddExceptionHandler<CustomExceptionHandler>();
         builder.Services.AddScoped<ErrorHandlingMiddleware>();

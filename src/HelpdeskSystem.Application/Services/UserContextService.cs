@@ -17,4 +17,16 @@ public class UserContextService : IUserContextService
     {
         return _httpContext.HttpContext?.User;
     }
+
+    public Guid? GetCurrentUserId()
+    {
+        var userId = _httpContext.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if(!Guid.TryParse(userId, out var id))
+        {
+            return null;
+        }
+        
+        return id;
+    }
 }

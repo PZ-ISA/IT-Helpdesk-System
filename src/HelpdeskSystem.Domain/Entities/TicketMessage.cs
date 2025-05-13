@@ -6,7 +6,7 @@ namespace HelpdeskSystem.Domain.Entities;
 
 public sealed record TicketMessage : BaseEntity
 {
-    public required string Content { get; set; }
+    public required string Message { get; set; }
     public Guid TicketId { get; set; }
     public Guid UserId { get; set; }
 
