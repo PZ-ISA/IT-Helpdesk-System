@@ -7,7 +7,7 @@ namespace HelpdeskSystem.API.Endpoints;
 
 public static class AccountsApi
 {
-    public static void MapAccountsApi(this IEndpointRouteBuilder app)
+    public static IEndpointRouteBuilder MapAccountsApi(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api")
             .WithTags("Accounts")
@@ -18,10 +18,10 @@ public static class AccountsApi
         {
             await accountService.RegisterAsync(registerDto, ct);
 
-            return Results.Ok();
+            return Results.Created();
         })
         .WithRequestValidation<RegisterDto>()
-        .Produces(StatusCodes.Status200OK);
+        .Produces(StatusCodes.Status201Created);
 
         group.MapPost("/login", async (IAccountService accountService, [FromBody] LoginDto loginDto, CancellationToken ct) =>
         {
@@ -30,5 +30,7 @@ public static class AccountsApi
             return Results.Ok(result);
         })
         .Produces<string>(StatusCodes.Status200OK, "application/json");
+        
+        return app;
     }
 }

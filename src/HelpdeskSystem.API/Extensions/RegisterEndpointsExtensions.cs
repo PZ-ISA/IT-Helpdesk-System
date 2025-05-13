@@ -6,6 +6,8 @@ public static class RegisterEndpointsExtensions
 {
     public static void RegisterEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapAccountsApi();
+        app
+            .MapAccountsApi()
+            .MapChatBotApi();
     }
 }

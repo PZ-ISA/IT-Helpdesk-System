@@ -142,9 +142,41 @@ public class ChatBotService : IChatBotService
         return response;
     }
 
-    public Task<PaginatedResponseDto<ChatBotMessageDto>> GetSessionMessagesAsync(Guid sessionId, PageQueryFilterDto filterDto, CancellationToken ct)
+    public async Task<PaginatedResponseDto<ChatBotMessageResponseDto>> GetSessionMessagesAsync(Guid sessionId, PageQueryFilterDto filterDto, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        var userId = _userContextService.GetCurrentUserId();
+        if (userId == null)
+        {
+            throw new UnauthorizedException("User is not logged in.");
+        }
+        
+        var chatBotSession = await _dbContext.ChatBotSessions
+            .Include(x => x.ChatBotMessages)
+            .FirstOrDefaultAsync(x => x.Id == sessionId && x.UserId == userId, ct);
+        
+        if (chatBotSession == null || chatBotSession.ChatBotMessages == null)
+        {
+            throw new NotFoundException("Chat bot session not found.");
+        }
+        
+        var count = chatBotSession.ChatBotMessages.Count;
+        
+        var messages = chatBotSession.ChatBotMessages
+            .OrderByDescending(x => x.UpdatedAt)
+            .Select(x => new ChatBotMessageResponseDto
+            {
+                Id = x.Id,
+                CreatedAt = x.CreatedAt,
+                Message = x.Message,
+                IsUserMessage = x.IsUserMessage,
+                ChatBotSessionId = x.ChatBotSessionId,
+            })
+            .Paginate(filterDto.PageNumber, filterDto.PageSize)
+            .ToList();
+        
+        var result = new PaginatedResponseDto<ChatBotMessageResponseDto>(messages, filterDto.PageNumber, filterDto.PageSize, count);
+        
+        return result;
     }
 
     public async Task<PaginatedResponseDto<ChatBotSessionDto>> GetSessionsAsync(PageQueryFilterDto filterDto, CancellationToken ct)
