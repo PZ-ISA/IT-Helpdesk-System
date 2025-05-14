@@ -13,6 +13,8 @@ builder.Services.AddAuthorization(options => options.AddAuthorizationPolicies())
 
 builder.Services.AddOpenApiDocumentation();
 
+builder.Services.ConfigureCulture();
+
 var app = builder.Build();
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
@@ -29,6 +31,8 @@ if (app.Environment.IsDevelopment())
     });}
 
 app.UseHttpsRedirection();
+
+app.UseRequestLocalization();
 
 app.UseAuthentication();
 app.UseAuthorization();
