@@ -3,9 +3,8 @@ using HelpdeskSystem.Application.Common;
 using HelpdeskSystem.Application.Middleware;
 using HelpdeskSystem.Application.Services;
 using HelpdeskSystem.Application.Validators;
-using HelpdeskSystem.Application.Validators.Accounts;
-using HelpdeskSystem.Domain.Common;
 using HelpdeskSystem.Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -29,6 +28,7 @@ public static class Setup
         //builder.Services.AddProblemDetails();
         //builder.Services.AddExceptionHandler<CustomExceptionHandler>();
         builder.Services.AddScoped<ErrorHandlingMiddleware>();
+        builder.Services.AddSingleton<IAuthorizationHandler, ActiveUserAuthorizationHandler>();
         
         builder.Services.AddSingleton(jwtOptions);
 
