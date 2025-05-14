@@ -32,7 +32,7 @@ public class ChatBotService : IChatBotService
 
         var chatBotSession = new ChatBotSession
         {
-            Title = $"Chat - {_timeProvider.GetUtcNow():yyyy-MM-dd-h-mm}",
+            Title = $"Chat - {_timeProvider.GetUtcNow():g}",
             UserId = userId.Value,
             ChatBotMessages = new List<ChatBotMessage>()
             {

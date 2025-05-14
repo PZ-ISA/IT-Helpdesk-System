@@ -1,3 +1,4 @@
+using HelpdeskSystem.API.Extensions;
 using HelpdeskSystem.Domain.Common;
 using HelpdeskSystem.Domain.Dtos.ChatBot;
 using HelpdeskSystem.Domain.Interfaces;
@@ -20,6 +21,7 @@ public static class ChatBotApi
             
             return Results.Created($"/api/chatbot-sessions/{result.SessionId}", result);
         })
+        .WithRequestValidation<ChatBotMessageDto>()
         .Produces<StartSessionResponseDto>(StatusCodes.Status200OK, "application/json");
 
         group.MapPost("/{id:guid}/messages", async (IChatBotService chatBotService, [FromBody] ChatBotMessageDto messageDto, Guid id, CancellationToken ct) =>
@@ -28,6 +30,7 @@ public static class ChatBotApi
             
             return Results.Ok(result);
         })
+        .WithRequestValidation<ChatBotMessageDto>()
         .Produces<ChatBotMessageDto>(StatusCodes.Status200OK, "application/json");
 
         group.MapPatch("/{id:guid}/title", async (IChatBotService chatBotService, [FromBody] UpdateTitleDto titleDto, Guid id, CancellationToken ct) =>
@@ -36,6 +39,7 @@ public static class ChatBotApi
             
             return Results.NoContent();
         })
+        .WithRequestValidation<UpdateTitleDto>()
         .Produces(StatusCodes.Status204NoContent);
 
         group.MapGet("", async (IChatBotService chatBotService, [AsParameters] PageQueryFilterDto filterDto, CancellationToken ct) =>
@@ -44,6 +48,7 @@ public static class ChatBotApi
             
             return Results.Ok(result);
         })
+        .WithRequestValidation<PageQueryFilterDto>()
         .Produces<PaginatedResponseDto<ChatBotSessionDto>>(StatusCodes.Status200OK, "application/json");
 
         group.MapGet("/{id:guid}/messages", async (IChatBotService chatBotService, [AsParameters] PageQueryFilterDto filterDto, Guid id, CancellationToken ct) =>
@@ -52,6 +57,7 @@ public static class ChatBotApi
             
             return Results.Ok(result);
         })
+        .WithRequestValidation<PageQueryFilterDto>()
         .Produces<PaginatedResponseDto<ChatBotMessageResponseDto>>(StatusCodes.Status200OK, "application/json");
 
         group.MapPost("/{id:guid}/end", async (IChatBotService chatBotService, FeedbackDto? feedbackDto, Guid id, CancellationToken ct) =>
@@ -60,6 +66,7 @@ public static class ChatBotApi
 
             return Results.NoContent();
         })
+        .WithRequestValidation<FeedbackDto>()
         .Produces(StatusCodes.Status204NoContent);
 
         return app;
