@@ -41,6 +41,7 @@ public class AccountService : IAccountService
         {
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(ClaimTypes.Name, $"{user.Email}"),
+            new("IsActive", user.IsActive.ToString())
         };
 
         foreach (var role in roles)

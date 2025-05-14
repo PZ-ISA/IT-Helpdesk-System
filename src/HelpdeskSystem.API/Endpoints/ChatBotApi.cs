@@ -12,7 +12,7 @@ public static class ChatBotApi
     {
         var group = app.MapGroup("/api/chatbot-sessions")
             .WithTags("ChatBot")
-            .RequireAuthorization()
+            .RequireAuthorization("IsActive")
             .WithOpenApi();
 
         group.MapPost("", async (IChatBotService chatBotService, [FromBody] ChatBotMessageDto messageDto, CancellationToken ct) =>

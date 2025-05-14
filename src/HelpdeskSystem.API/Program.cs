@@ -9,7 +9,7 @@ builder.Services.AddDatabase(builder.Configuration);
 builder.AddApplicationLogic(builder.Configuration);
 
 builder.Services.AddJwtAuthentication();
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options => options.AddAuthorizationPolicies());
 
 builder.Services.AddOpenApiDocumentation();
 
@@ -17,6 +17,7 @@ var app = builder.Build();
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
 //app.UseExceptionHandler();
+app.UseAuthenticationProblemDetails();
 
 if (app.Environment.IsDevelopment())
 {
