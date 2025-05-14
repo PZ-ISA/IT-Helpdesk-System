@@ -2,5 +2,5 @@ namespace HelpdeskSystem.Application.Common;
 
 public static class Roles
 {
-    public static readonly string[] RolesNames = [ "Admin", "User" ];
+    public static readonly string[] RolesNames = [ "Admin", "Employee" ];
 }
