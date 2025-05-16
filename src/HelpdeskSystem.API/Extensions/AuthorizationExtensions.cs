@@ -7,7 +7,7 @@ public static class AuthorizationExtensions
 {
     public static void AddAuthorizationPolicies(this AuthorizationOptions options)
     {
-        options.AddPolicy("User", policy => policy.RequireRole("User"));
+        options.AddPolicy("Employee", policy => policy.RequireRole("Employee"));
         options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
         options.AddPolicy("IsActive", policy => policy.AddRequirements(new ActiveUserRequirement()));
     }

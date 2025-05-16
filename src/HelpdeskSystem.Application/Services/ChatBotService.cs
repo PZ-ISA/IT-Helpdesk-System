@@ -89,6 +89,7 @@ public class ChatBotService : IChatBotService
         
         chatBotSession.Feedback = feedbackDto?.Feedback;
         chatBotSession.EndDate = _timeProvider.GetUtcNow();
+        chatBotSession.UpdatedAt = _timeProvider.GetUtcNow();
         
         await _dbContext.SaveChangesAsync(ct);
     }
@@ -228,6 +229,8 @@ public class ChatBotService : IChatBotService
         }
         
         chatBotSession.Title = titleDto.Title;
+        chatBotSession.UpdatedAt = _timeProvider.GetUtcNow();
+        
         await _dbContext.SaveChangesAsync(ct);
     }
 }
