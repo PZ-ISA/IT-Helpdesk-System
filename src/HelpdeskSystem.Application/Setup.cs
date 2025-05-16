@@ -37,5 +37,6 @@ public static class Setup
         builder.Services.AddScoped<IUserContextService, UserContextService>();
         builder.Services.AddScoped<IAccountService, AccountService>();
         builder.Services.AddScoped<IChatBotService, ChatBotService>();
+        builder.Services.AddScoped<ITicketService, TicketService>();
     }
 }

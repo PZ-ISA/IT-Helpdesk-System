@@ -11,10 +11,10 @@ public sealed record Ticket : BaseEntity
     public required string Description { get; set; }
     public TicketStatus Status { get; set; }
     public Guid EmployeeUserId { get; set; }
-    public Guid? SupportUserId { get; set; }
+    public Guid? AdminUserId { get; set; }
 
     public User? EmployeeUser { get; set; }
-    public User? SupportUser { get; set; }
+    public User? AdminUser { get; set; }
     public ICollection<TicketMessage>? TicketMessages { get; set; }
 }
 
@@ -29,9 +29,9 @@ public class TicketConfiguration : BaseEntityConfiguration<Ticket>
             .HasForeignKey(x => x.EmployeeUserId)
             .OnDelete(DeleteBehavior.Restrict);
         
-        builder.HasOne(x => x.SupportUser)
+        builder.HasOne(x => x.AdminUser)
             .WithMany()
-            .HasForeignKey(x => x.SupportUserId)
+            .HasForeignKey(x => x.AdminUserId)
             .OnDelete(DeleteBehavior.Restrict);
         
         builder.HasMany(x => x.TicketMessages)

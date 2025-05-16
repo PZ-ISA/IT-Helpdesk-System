@@ -8,6 +8,7 @@ public static class RegisterEndpointsExtensions
     {
         app
             .MapAccountsApi()
-            .MapChatBotApi();
+            .MapChatBotApi()
+            .MapTicketApi();
     }
 }
