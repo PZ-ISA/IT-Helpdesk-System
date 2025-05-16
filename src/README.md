@@ -21,22 +21,26 @@
 
 **4. Database**
 - Now you have to apply migrations to database. Open terminal and past this command
-
-`ef database update --project HelpdeskSystem.Infrastructure/HelpdeskSystem.Infrastructure.csproj --startup-project HelpdeskSystem.API/HelpdeskSystem.API.csproj --context HelpdeskSystem.Infrastructure.Contexts.HelpdeskDbContext --configuration Debug <migration> --connection "<connection_string>"`
+```
+ef database update --project HelpdeskSystem.Infrastructure/HelpdeskSystem.Infrastructure.csproj --startup-project HelpdeskSystem.API/HelpdeskSystem.API.csproj --context HelpdeskSystem.Infrastructure.Contexts.HelpdeskDbContext --configuration Debug <migration> --connection "<connection_string>"
+```
 
 **5. Run project**
 - If you want to run project from terminal then run this command:
-
-`dotnet run --project HelpdeskSystem.API`
+```
+dotnet run --project HelpdeskSystem.API
+```
 
 ## API Documentation
 
 The API is documented using OpenAPI. Once the backend is running the browser should automatically launch the documentation. If not then visit:
 
 for **HTTPS**
-
-`https://localhost:5001/swagger`
+```
+https://localhost:5001/swagger
+```
 
 for **HTTP**
-
-`https://localhost:500/swagger`
+```
+https://localhost:500/swagger
+```
