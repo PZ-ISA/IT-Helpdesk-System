@@ -1,5 +1,5 @@
 using HelpdeskSystem.Domain.Common;
-using HelpdeskSystem.Domain.Dtos.Ticket;
+using HelpdeskSystem.Domain.Dtos.Tickets;
 
 namespace HelpdeskSystem.Domain.Interfaces;
 

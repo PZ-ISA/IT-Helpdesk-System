@@ -9,6 +9,7 @@ public static class RegisterEndpointsExtensions
         app
             .MapAccountsApi()
             .MapChatBotApi()
-            .MapTicketApi();
+            .MapTicketApi()
+            .MapExportDataApi();
     }
 }

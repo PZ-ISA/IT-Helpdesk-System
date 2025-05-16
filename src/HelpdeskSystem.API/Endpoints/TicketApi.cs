@@ -1,6 +1,6 @@
 using HelpdeskSystem.API.Extensions;
 using HelpdeskSystem.Domain.Common;
-using HelpdeskSystem.Domain.Dtos.Ticket;
+using HelpdeskSystem.Domain.Dtos.Tickets;
 using HelpdeskSystem.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 

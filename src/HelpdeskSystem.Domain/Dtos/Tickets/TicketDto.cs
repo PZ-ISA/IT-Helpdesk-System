@@ -1,6 +1,6 @@
 using HelpdeskSystem.Domain.Enums;
 
-namespace HelpdeskSystem.Domain.Dtos.Ticket;
+namespace HelpdeskSystem.Domain.Dtos.Tickets;
 
 public sealed record TicketDto
 {

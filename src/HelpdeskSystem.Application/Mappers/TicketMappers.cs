@@ -1,4 +1,4 @@
-using HelpdeskSystem.Domain.Dtos.Ticket;
+using HelpdeskSystem.Domain.Dtos.Tickets;
 using HelpdeskSystem.Domain.Entities;
 
 namespace HelpdeskSystem.Application.Mappers;

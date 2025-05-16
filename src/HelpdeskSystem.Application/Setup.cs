@@ -38,5 +38,6 @@ public static class Setup
         builder.Services.AddScoped<IAccountService, AccountService>();
         builder.Services.AddScoped<IChatBotService, ChatBotService>();
         builder.Services.AddScoped<ITicketService, TicketService>();
+        builder.Services.AddScoped<IDataExportService, DataExportService>();
     }
 }

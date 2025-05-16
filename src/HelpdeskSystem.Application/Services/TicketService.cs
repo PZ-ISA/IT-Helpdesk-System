@@ -1,7 +1,7 @@
 using HelpdeskSystem.Application.Mappers;
 using HelpdeskSystem.Application.Utils;
 using HelpdeskSystem.Domain.Common;
-using HelpdeskSystem.Domain.Dtos.Ticket;
+using HelpdeskSystem.Domain.Dtos.Tickets;
 using HelpdeskSystem.Domain.Entities;
 using HelpdeskSystem.Domain.Enums;
 using HelpdeskSystem.Domain.Exceptions;
