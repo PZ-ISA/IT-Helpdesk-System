@@ -22,7 +22,7 @@ public static class ChatBotApi
             return Results.Created($"/api/chatbot-sessions/{result.SessionId}", result);
         })
         .WithRequestValidation<ChatBotMessageDto>()
-        .Produces<StartSessionResponseDto>(StatusCodes.Status200OK, "application/json");
+        .Produces<StartSessionResponseDto>(StatusCodes.Status201Created, "application/json");
 
         group.MapPost("/{id:guid}/messages", async (IChatBotService chatBotService, [FromBody] ChatBotMessageDto messageDto, Guid id, CancellationToken ct) =>
         {

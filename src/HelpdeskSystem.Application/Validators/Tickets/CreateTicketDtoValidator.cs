@@ -1,7 +1,7 @@
 using FluentValidation;
 using HelpdeskSystem.Domain.Dtos.Ticket;
 
-namespace HelpdeskSystem.Application.Validators;
+namespace HelpdeskSystem.Application.Validators.Tickets;
 
 public class CreateTicketDtoValidator : AbstractValidator<CreateTicketDto>
 {

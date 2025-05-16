@@ -76,12 +76,12 @@ public class TicketService : ITicketService
         }
 
         var baseQuery = _dbContext.Tickets
-            .Select(x => TicketMappers.MapToTicketDto(x))
             .Where(x => x.EmployeeUserId == userId);
         
         var count = await baseQuery.CountAsync(ct);
 
         var items = await baseQuery
+            .Select(x => TicketMappers.MapToTicketDto(x))
             .Paginate(filterDto.PageNumber, filterDto.PageSize)
             .ToListAsync(ct);
         
@@ -104,6 +104,11 @@ public class TicketService : ITicketService
         if (ticket == null)
         {
             throw new NotFoundException("Ticket not found.");
+        }
+
+        if (ticket.Status == TicketStatus.Closed)
+        {
+            throw new BadRequestException("Can not update closed ticket");
         }
         
         ticket.Title = dto.Title;
