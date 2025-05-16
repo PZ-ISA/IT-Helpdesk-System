@@ -29,7 +29,15 @@ public static class AccountsApi
 
             return Results.Ok(result);
         })
-        .Produces<string>(StatusCodes.Status200OK, "application/json");
+        .Produces<LoginResponseDto>(StatusCodes.Status200OK, "application/json");
+
+        group.MapPost("/refresh-token", async (IAccountService accountService, [FromBody] RefreshTokenRequestDto refreshDto, CancellationToken ct) =>
+        {
+            var result = await accountService.RefreshTokenAsync(refreshDto, ct);
+            
+            return Results.Ok(result);
+        })
+        .Produces<LoginResponseDto>(StatusCodes.Status200OK, "application/json");
         
         return app;
     }

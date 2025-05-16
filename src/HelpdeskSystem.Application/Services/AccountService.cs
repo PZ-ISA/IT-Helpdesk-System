@@ -24,7 +24,7 @@ public class AccountService : IAccountService
         _roleManager = roleManager;
     }
     
-    public async Task<string> LoginAsync(LoginDto dto, CancellationToken ct)
+    public async Task<LoginResponseDto> LoginAsync(LoginDto dto, CancellationToken ct)
     {
         var user = await _userManager.FindByEmailAsync(dto.Email);
         if (user == null || !await _userManager.CheckPasswordAsync(user, dto.Password))
@@ -52,15 +52,22 @@ public class AccountService : IAccountService
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddMinutes(60),
+            Expires = DateTime.UtcNow.AddSeconds(30),
             Issuer = _jwtOptions.Issuer,
             Audience = _jwtOptions.Audience,
             SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature)
         };
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
+        var refreshToken = Guid.NewGuid().ToString();
         
-        return tokenHandler.WriteToken(token);
+        await _userManager.SetAuthenticationTokenAsync(user, "HelpdeskSystem", "RefreshToken", refreshToken);
+
+        return new LoginResponseDto
+        {
+            Token = tokenHandler.WriteToken(token),
+            RefreshToken = refreshToken
+        };
     }
 
     public async Task RegisterAsync(RegisterDto dto, CancellationToken ct)
@@ -94,5 +101,60 @@ public class AccountService : IAccountService
         }
         
         await _userManager.AddToRoleAsync(user, role);
+    }
+
+    public async Task<LoginResponseDto> RefreshTokenAsync(RefreshTokenRequestDto dto, CancellationToken ct)
+    {
+        // var user = _userManager.Users.FirstOrDefault(u => _userManager.GetAuthenticationTokenAsync(u, "HelpdeskSystem", "RefreshToken").Result == dto.RefreshToken);
+
+        var users = _userManager.Users.ToList();
+
+        foreach (var user in users)
+        {
+            var RefreshToken = await _userManager.GetAuthenticationTokenAsync(user, "HelpdeskSystem", "RefreshToken");
+
+            if (RefreshToken == dto.RefreshToken)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+        
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Secret));
+
+                var claims = new List<Claim>
+                {
+                    new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new(ClaimTypes.Name, $"{user.Email}"),
+                    new("IsActive", user.IsActive.ToString())
+                };
+
+                foreach (var role in roles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role));
+                }
+
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(claims),
+                    Expires = DateTime.UtcNow.AddMinutes(60),
+                    Issuer = _jwtOptions.Issuer,
+                    Audience = _jwtOptions.Audience,
+                    SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature)
+                };
+
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                
+                var newRefreshToken = Guid.NewGuid().ToString();
+                
+                await _userManager.SetAuthenticationTokenAsync(user, "HelpdeskSystem", "RefreshToken", newRefreshToken);
+                
+                return new LoginResponseDto
+                {
+                    Token = tokenHandler.WriteToken(token),
+                    RefreshToken = newRefreshToken
+                };
+            }
+        }
+        
+        throw new UnauthorizedAccessException("Bad refresh token");
     }
 }
