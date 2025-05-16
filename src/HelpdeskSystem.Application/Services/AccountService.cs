@@ -52,7 +52,7 @@ public class AccountService : IAccountService
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddSeconds(30),
+            Expires = DateTime.UtcNow.AddMinutes(60),
             Issuer = _jwtOptions.Issuer,
             Audience = _jwtOptions.Audience,
             SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature)
