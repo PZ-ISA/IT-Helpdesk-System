@@ -21,54 +21,15 @@ public class AccountService : IAccountService
     private readonly RoleManager<IdentityRole<Guid>> _roleManager;
     private readonly JwtOptions _jwtOptions;
     private readonly HelpdeskDbContext _context;
+    private readonly TimeProvider _timeProvider;
     
-    private static string GenerateRefreshToken()
-    {
-        var bytes = new byte[64];
-        using var rng = RandomNumberGenerator.Create();
-        rng.GetBytes(bytes);
-        return Convert.ToBase64String(bytes);
-    }
-
-    private async Task<string> GenerateToken(User user)
-    {
-        var roles = await _userManager.GetRolesAsync(user);
-        
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Secret));
-
-        var claims = new List<Claim>
-        {
-            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new(ClaimTypes.Name, $"{user.Email}"),
-            new("IsActive", user.IsActive.ToString())
-        };
-
-        foreach (var role in roles)
-        {
-            claims.Add(new Claim(ClaimTypes.Role, role));
-        }
-
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddMinutes(60),
-            Issuer = _jwtOptions.Issuer,
-            Audience = _jwtOptions.Audience,
-            SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature)
-        };
-
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-
-        return tokenHandler.WriteToken(token);
-    }
-    
-    public AccountService(UserManager<User> userManager, JwtOptions jwtOptions, RoleManager<IdentityRole<Guid>> roleManager, HelpdeskDbContext context)
+    public AccountService(UserManager<User> userManager, JwtOptions jwtOptions, RoleManager<IdentityRole<Guid>> roleManager, HelpdeskDbContext context, TimeProvider timeProvider)
     {
         _userManager = userManager;
         _jwtOptions = jwtOptions;
         _roleManager = roleManager;
         _context = context;
+        _timeProvider = timeProvider;
     }
     
     public async Task<LoginResponseDto> LoginAsync(LoginDto dto, CancellationToken ct)
@@ -132,7 +93,7 @@ public class AccountService : IAccountService
     {
         var refreshToken = await _context.RefreshTokens.Include(rt => rt.User).FirstOrDefaultAsync(rt => rt.Token == dto.RefreshToken, ct);
 
-        if (refreshToken == null || refreshToken.IsRevoked || refreshToken.ExpiresAt <= DateTime.UtcNow)
+        if (refreshToken == null || refreshToken.IsRevoked || refreshToken.ExpiresAt <= _timeProvider.GetUtcNow())
         {
             throw new UnauthorizedException("Invalid or expired refresh token");
         }
@@ -160,5 +121,46 @@ public class AccountService : IAccountService
             Token = await GenerateToken(user),
             RefreshToken = newRefreshToken.Token
         };
+    }
+    
+    private static string GenerateRefreshToken()
+    {
+        var bytes = new byte[64];
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(bytes);
+        return Convert.ToBase64String(bytes);
+    }
+
+    private async Task<string> GenerateToken(User user)
+    {
+        var roles = await _userManager.GetRolesAsync(user);
+        
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Secret));
+
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new(ClaimTypes.Name, $"{user.Email}"),
+            new("IsActive", user.IsActive.ToString())
+        };
+
+        foreach (var role in roles)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, role));
+        }
+
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(claims),
+            Expires = DateTime.UtcNow.AddMinutes(60),
+            Issuer = _jwtOptions.Issuer,
+            Audience = _jwtOptions.Audience,
+            SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature)
+        };
+
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+
+        return tokenHandler.WriteToken(token);
     }
 }
