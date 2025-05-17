@@ -10,6 +10,7 @@ public static class RegisterEndpointsExtensions
             .MapAccountsApi()
             .MapChatBotApi()
             .MapTicketApi()
+            .MapAdminApi()
             .MapExportDataApi();
     }
 }
