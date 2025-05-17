@@ -1,5 +1,6 @@
 using HelpdeskSystem.Domain.Common;
 using HelpdeskSystem.Domain.Dtos.ChatBot;
+using HelpdeskSystem.Domain.Dtos.Common;
 
 namespace HelpdeskSystem.Domain.Interfaces;
 

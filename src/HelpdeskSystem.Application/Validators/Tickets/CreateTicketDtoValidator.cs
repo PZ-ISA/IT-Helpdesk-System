@@ -1,5 +1,5 @@
 using FluentValidation;
-using HelpdeskSystem.Domain.Dtos.Ticket;
+using HelpdeskSystem.Domain.Dtos.Tickets;
 
 namespace HelpdeskSystem.Application.Validators.Tickets;
 

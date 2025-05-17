@@ -111,7 +111,7 @@ public class AccountService : IAccountService
             IsActive = false,
         };
         
-        var role = dto.Role ?? "User";
+        var role = dto.Role ?? "Employee";
         if (!await _roleManager.RoleExistsAsync(role))
         {
             throw new BadRequestException($"Role '{role}' does not exist.");
