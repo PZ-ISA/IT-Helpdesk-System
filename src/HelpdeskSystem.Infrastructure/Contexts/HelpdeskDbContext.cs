@@ -16,6 +16,7 @@ public class HelpdeskDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gui
     public DbSet<TicketMessage> TicketMessages { get; set; }
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<EmailLog> EmailLogs { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<ChatBotSession> ChatBotSessions { get; set; }
     public DbSet<ChatBotMessage> ChatBotMessages { get; set; }
 
