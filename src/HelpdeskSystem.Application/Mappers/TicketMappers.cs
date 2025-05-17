@@ -17,6 +17,7 @@ public static class TicketMappers
             Description = ticket.Description,
             EmployeeUserId = ticket.EmployeeUserId,
             AdminUserId = ticket.AdminUserId,
+            Feedback = ticket.Feedback
         };
         
         return ticketDto;

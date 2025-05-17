@@ -1,6 +1,6 @@
 using HelpdeskSystem.Domain.Enums;
 
-namespace HelpdeskSystem.Domain.Dtos.ChatBot;
+namespace HelpdeskSystem.Domain.Dtos.Common;
 
 public sealed record FeedbackDto
 {

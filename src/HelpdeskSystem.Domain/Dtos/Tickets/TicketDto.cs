@@ -10,6 +10,7 @@ public sealed record TicketDto
     public required string Title { get; set; }
     public required string Description { get; set; }
     public required  TicketStatus Status { get; set; }
+    public Feedback? Feedback { get; set; }
     public required  Guid EmployeeUserId { get; set; }
     public Guid? AdminUserId { get; set; } 
 }
