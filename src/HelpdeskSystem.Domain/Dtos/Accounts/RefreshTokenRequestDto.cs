@@ -1,6 +1,6 @@
 ﻿namespace HelpdeskSystem.Domain.Dtos.Accounts;
 
-public class RefreshTokenRequestDto
+public sealed record RefreshTokenRequestDto
 {
     public required string RefreshToken { get; init; }
 }

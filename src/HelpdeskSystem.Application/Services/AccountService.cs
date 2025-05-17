@@ -1,13 +1,17 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using HelpdeskSystem.Application.Common;
 using HelpdeskSystem.Domain.Dtos.Accounts;
 using HelpdeskSystem.Domain.Entities;
 using HelpdeskSystem.Domain.Exceptions;
 using HelpdeskSystem.Domain.Interfaces;
+using HelpdeskSystem.Infrastructure.Contexts;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace HelpdeskSystem.Application.Services;
 
@@ -16,22 +20,18 @@ public class AccountService : IAccountService
     private readonly UserManager<User> _userManager;
     private readonly RoleManager<IdentityRole<Guid>> _roleManager;
     private readonly JwtOptions _jwtOptions;
+    private readonly HelpdeskDbContext _context;
     
-    public AccountService(UserManager<User> userManager, JwtOptions jwtOptions, RoleManager<IdentityRole<Guid>> roleManager)
+    private static string GenerateRefreshToken()
     {
-        _userManager = userManager;
-        _jwtOptions = jwtOptions;
-        _roleManager = roleManager;
+        var bytes = new byte[64];
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(bytes);
+        return Convert.ToBase64String(bytes);
     }
-    
-    public async Task<LoginResponseDto> LoginAsync(LoginDto dto, CancellationToken ct)
+
+    private async Task<string> GenerateToken(User user)
     {
-        var user = await _userManager.FindByEmailAsync(dto.Email);
-        if (user == null || !await _userManager.CheckPasswordAsync(user, dto.Password))
-        {
-            throw new BadRequestException("Incorrect email or password");
-        }
-        
         var roles = await _userManager.GetRolesAsync(user);
         
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -59,14 +59,39 @@ public class AccountService : IAccountService
         };
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
-        var refreshToken = Guid.NewGuid().ToString();
-        
-        await _userManager.SetAuthenticationTokenAsync(user, "HelpdeskSystem", "RefreshToken", refreshToken);
 
+        return tokenHandler.WriteToken(token);
+    }
+    
+    public AccountService(UserManager<User> userManager, JwtOptions jwtOptions, RoleManager<IdentityRole<Guid>> roleManager, HelpdeskDbContext context)
+    {
+        _userManager = userManager;
+        _jwtOptions = jwtOptions;
+        _roleManager = roleManager;
+        _context = context;
+    }
+    
+    public async Task<LoginResponseDto> LoginAsync(LoginDto dto, CancellationToken ct)
+    {
+        var user = await _userManager.FindByEmailAsync(dto.Email);
+        if (user == null || !await _userManager.CheckPasswordAsync(user, dto.Password))
+        {
+            throw new BadRequestException("Incorrect email or password");
+        }
+        
+        var refreshToken = new RefreshToken
+        {
+            Token = GenerateRefreshToken(),
+            UserId = user.Id
+        };
+        
+        _context.RefreshTokens.Add(refreshToken);
+        await _context.SaveChangesAsync(ct);
+        
         return new LoginResponseDto
         {
-            Token = tokenHandler.WriteToken(token),
-            RefreshToken = refreshToken
+            Token = await GenerateToken(user),
+            RefreshToken = refreshToken.Token
         };
     }
 
@@ -105,56 +130,35 @@ public class AccountService : IAccountService
 
     public async Task<LoginResponseDto> RefreshTokenAsync(RefreshTokenRequestDto dto, CancellationToken ct)
     {
-        // var user = _userManager.Users.FirstOrDefault(u => _userManager.GetAuthenticationTokenAsync(u, "HelpdeskSystem", "RefreshToken").Result == dto.RefreshToken);
+        var refreshToken = await _context.RefreshTokens.Include(rt => rt.User).FirstOrDefaultAsync(rt => rt.Token == dto.RefreshToken, ct);
 
-        var users = _userManager.Users.ToList();
-
-        foreach (var user in users)
+        if (refreshToken == null || refreshToken.IsRevoked || refreshToken.ExpiresAt <= DateTime.UtcNow)
         {
-            var RefreshToken = await _userManager.GetAuthenticationTokenAsync(user, "HelpdeskSystem", "RefreshToken");
-
-            if (RefreshToken == dto.RefreshToken)
-            {
-                var roles = await _userManager.GetRolesAsync(user);
-        
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Secret));
-
-                var claims = new List<Claim>
-                {
-                    new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new(ClaimTypes.Name, $"{user.Email}"),
-                    new("IsActive", user.IsActive.ToString())
-                };
-
-                foreach (var role in roles)
-                {
-                    claims.Add(new Claim(ClaimTypes.Role, role));
-                }
-
-                var tokenDescriptor = new SecurityTokenDescriptor
-                {
-                    Subject = new ClaimsIdentity(claims),
-                    Expires = DateTime.UtcNow.AddMinutes(60),
-                    Issuer = _jwtOptions.Issuer,
-                    Audience = _jwtOptions.Audience,
-                    SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature)
-                };
-
-                var token = tokenHandler.CreateToken(tokenDescriptor);
-                
-                var newRefreshToken = Guid.NewGuid().ToString();
-                
-                await _userManager.SetAuthenticationTokenAsync(user, "HelpdeskSystem", "RefreshToken", newRefreshToken);
-                
-                return new LoginResponseDto
-                {
-                    Token = tokenHandler.WriteToken(token),
-                    RefreshToken = newRefreshToken
-                };
-            }
+            throw new UnauthorizedException("Invalid or expired refresh token");
         }
         
-        throw new UnauthorizedAccessException("Bad refresh token");
+        var user = refreshToken.User;
+
+        if (user == null || !user.IsActive)
+        {
+            throw new BadRequestException("Invalid User for this refresh token");
+        }
+        
+        refreshToken.IsRevoked = true;
+        
+        var newRefreshToken = new RefreshToken
+        {
+            Token = GenerateRefreshToken(),
+            UserId = user.Id
+        };
+        
+        _context.RefreshTokens.Add(newRefreshToken);
+        await _context.SaveChangesAsync(ct);
+        
+        return new LoginResponseDto
+        {
+            Token = await GenerateToken(user),
+            RefreshToken = newRefreshToken.Token
+        };
     }
 }
