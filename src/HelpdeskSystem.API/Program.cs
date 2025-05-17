@@ -39,6 +39,6 @@ app.UseAuthorization();
 
 app.RegisterEndpoints();
 
-await app.SeedAsync();
+await app.SeedAsync(builder.Configuration);
 
 app.Run();

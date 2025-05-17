@@ -1,6 +1,7 @@
 using HelpdeskSystem.API.Extensions;
 using HelpdeskSystem.Domain.Common;
 using HelpdeskSystem.Domain.Dtos.ChatBot;
+using HelpdeskSystem.Domain.Dtos.Common;
 using HelpdeskSystem.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,6 +1,7 @@
 using HelpdeskSystem.Application.Utils;
 using HelpdeskSystem.Domain.Common;
 using HelpdeskSystem.Domain.Dtos.ChatBot;
+using HelpdeskSystem.Domain.Dtos.Common;
 using HelpdeskSystem.Domain.Entities;
 using HelpdeskSystem.Domain.Exceptions;
 using HelpdeskSystem.Domain.Interfaces;

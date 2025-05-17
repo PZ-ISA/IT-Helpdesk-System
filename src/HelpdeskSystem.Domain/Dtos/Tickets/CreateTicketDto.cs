@@ -1,4 +1,4 @@
-namespace HelpdeskSystem.Domain.Dtos.Ticket;
+namespace HelpdeskSystem.Domain.Dtos.Tickets;
 
 public sealed record CreateTicketDto
 {

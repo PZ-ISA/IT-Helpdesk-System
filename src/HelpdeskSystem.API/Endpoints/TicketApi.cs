@@ -1,6 +1,7 @@
 using HelpdeskSystem.API.Extensions;
 using HelpdeskSystem.Domain.Common;
-using HelpdeskSystem.Domain.Dtos.Ticket;
+using HelpdeskSystem.Domain.Dtos.Common;
+using HelpdeskSystem.Domain.Dtos.Tickets;
 using HelpdeskSystem.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -58,6 +59,15 @@ public static class TicketApi
             return Results.NoContent();
         })
         .Produces(StatusCodes.Status204NoContent);
+        
+        group.MapPost("/{id:guid}/feedback", async (ITicketService ticketService, Guid id, [FromBody] FeedbackDto dto, CancellationToken ct) =>
+        {
+            await ticketService.AddFeedbackAsync(id, dto, ct);
+            
+            return Results.Ok();
+         })
+        .WithRequestValidation<FeedbackDto>()
+        .Produces(StatusCodes.Status200OK);
         
         return app;
     }
