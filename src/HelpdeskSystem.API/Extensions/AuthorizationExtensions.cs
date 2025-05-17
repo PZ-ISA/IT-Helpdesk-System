@@ -9,6 +9,7 @@ public static class AuthorizationExtensions
     {
         options.AddPolicy("Employee", policy => policy.RequireRole("Employee"));
         options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+        options.AddPolicy("ChatBot", policy => policy.RequireRole("ChatBot"));
         options.AddPolicy("IsActive", policy => policy.AddRequirements(new ActiveUserRequirement()));
     }
 

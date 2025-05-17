@@ -10,7 +10,8 @@ public static class ExportDataApi
         var group = app.MapGroup("/api/export-data")
             .WithTags("ExportData")
             .WithOpenApi()
-            .RequireAuthorization();
+            .RequireAuthorization("ChatBot")
+            .RequireAuthorization("IsActive");
 
         group.MapGet("/tickets", async (IDataExportService dataExportService, CancellationToken ct) =>
         {

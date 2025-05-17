@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Protocols.Configuration;
 
 namespace HelpdeskSystem.Application;
 
@@ -20,7 +19,7 @@ public static class Setup
         var jwtOptions = configuration.GetSection("JwtSettings").Get<JwtOptions>();
         if (jwtOptions == null)
         {
-            throw new InvalidConfigurationException("JWTSettings not found in configuration");
+            throw new InvalidOperationException("JWTSettings not found in configuration");
         }
 
         builder.Services.AddSingleton(TimeProvider.System);
