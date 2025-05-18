@@ -1,4 +1,5 @@
-﻿using HelpdeskSystem.Application.Utils;
+﻿using HelpdeskSystem.Application.Mappers;
+using HelpdeskSystem.Application.Utils;
 using HelpdeskSystem.Domain.Common;
 using HelpdeskSystem.Domain.Dtos.Users;
 using HelpdeskSystem.Domain.Entities;
@@ -10,13 +11,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HelpdeskSystem.Application.Services;
 
-public class AdminUserServices : IAdminUserService
+public class AdminUserService : IAdminUserService
 {
     private readonly UserManager<User> _userManager;
     private readonly IUserContextService _userContextService;
     private readonly HelpdeskDbContext _context;
 
-    public AdminUserServices(UserManager<User> userManager, IUserContextService userContextService, HelpdeskDbContext context)
+    public AdminUserService(UserManager<User> userManager, IUserContextService userContextService, HelpdeskDbContext context)
     {
         _userManager = userManager;
         _userContextService = userContextService;
@@ -42,14 +43,7 @@ public class AdminUserServices : IAdminUserService
         }
 
         var items = await baseQuery
-            .Select(x => new UserDto
-            {
-                Id = x.Id,
-                Name = x.Name,
-                Surname = x.Surname,
-                Email = x.Email,
-                IsActive = x.IsActive
-            })
+            .Select(x => UserMappers.MapToUserDto(x))
             .Paginate(filterDto.PageNumber, filterDto.PageSize)
             .ToListAsync(ct);
 

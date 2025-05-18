@@ -1,10 +1,10 @@
 ﻿namespace HelpdeskSystem.Domain.Dtos.Users;
 
-public class UserDto
+public sealed record UserDto
 {
-    public Guid Id { get; set; }
-    public string Name { get; set; }
-    public string Surname { get; set; }
-    public string Email { get; set; }
-    public bool IsActive { get; set; }
+    public required Guid Id { get; set; }
+    public required string Name { get; set; }
+    public required string Surname { get; set; }
+    public string? Email { get; set; }
+    public required bool IsActive { get; set; }
 }
