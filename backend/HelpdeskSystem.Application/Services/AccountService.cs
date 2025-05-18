@@ -51,7 +51,7 @@ public class AccountService : IAccountService
         
         return new LoginResponseDto
         {
-            Token = await GenerateToken(user),
+            JwtToken = await GenerateToken(user),
             RefreshToken = refreshToken.Token
         };
     }
@@ -118,7 +118,7 @@ public class AccountService : IAccountService
         
         return new LoginResponseDto
         {
-            Token = await GenerateToken(user),
+            JwtToken = await GenerateToken(user),
             RefreshToken = newRefreshToken.Token
         };
     }

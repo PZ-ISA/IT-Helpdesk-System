@@ -12,7 +12,7 @@ public static class UserMappers
             Id = user.Id,
             Name = user.Name,
             Surname = user.Surname,
-            Email = user.Email,
+            Email = user.Email!,
             IsActive = user.IsActive
         };
         
