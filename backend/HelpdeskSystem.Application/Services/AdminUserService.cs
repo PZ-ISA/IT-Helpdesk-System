@@ -14,32 +14,24 @@ namespace HelpdeskSystem.Application.Services;
 public class AdminUserService : IAdminUserService
 {
     private readonly UserManager<User> _userManager;
-    private readonly IUserContextService _userContextService;
     private readonly HelpdeskDbContext _context;
 
-    public AdminUserService(UserManager<User> userManager, IUserContextService userContextService, HelpdeskDbContext context)
+    public AdminUserService(UserManager<User> userManager, HelpdeskDbContext context)
     {
         _userManager = userManager;
-        _userContextService = userContextService;
         _context = context;
     }
 
 
-    public async Task<PaginatedResponseDto<UserDto>> GetUsersAsync(PageQueryFilterDto filterDto, bool? isActive, CancellationToken ct)
+    public async Task<PaginatedResponseDto<UserDto>> GetUsersAsync(PageQueryFilterDto filterDto, bool? status, CancellationToken ct)
     {
-        var userId = _userContextService.GetCurrentUserId();
-        if (userId == null)
-        {
-            throw new UnauthorizedException("User is not logged in.");
-        }
-
         var baseQuery = _context.Users.AsQueryable();
 
         var count = await baseQuery.CountAsync(ct);
         
-        if (isActive.HasValue)
+        if (status.HasValue)
         {
-            baseQuery = baseQuery.Where(x => x.IsActive == isActive.Value);
+            baseQuery = baseQuery.Where(x => x.IsActive == status.Value);
         }
 
         var items = await baseQuery
@@ -52,21 +44,15 @@ public class AdminUserService : IAdminUserService
         return result;
     }
     
-    public async Task UpdateUserStatusAsync(UserStatusDto userStatusDto, CancellationToken ct)
+    public async Task UpdateUserStatusAsync(UpdateUserStatusDto updateUserStatusDto, Guid id, CancellationToken ct)
     {
-        var userId = _userContextService.GetCurrentUserId();
-        if (userId == null)
-        {
-            throw new UnauthorizedException("User is not logged in.");
-        }
-
-        var user = await _userManager.FindByIdAsync(userStatusDto.Id.ToString());
+        var user = await _userManager.FindByIdAsync(id.ToString());
         if (user == null)
         {
             throw new NotFoundException("User not found.");
         }
 
-        user.IsActive = userStatusDto.IsActive;
+        user.IsActive = updateUserStatusDto.IsActive;
 
         var result = await _userManager.UpdateAsync(user);
         if (!result.Succeeded)

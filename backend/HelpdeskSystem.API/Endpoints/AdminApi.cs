@@ -2,6 +2,7 @@
 using HelpdeskSystem.Domain.Interfaces;
 using HelpdeskSystem.Domain.Common;
 using HelpdeskSystem.Domain.Dtos.Users;
+using Microsoft.AspNetCore.Mvc;
 
 namespace HelpdeskSystem.API.Endpoints;
 
@@ -15,23 +16,23 @@ public static class AdminApi
             .RequireAuthorization("IsActive")
             .WithOpenApi();
 
-        group.MapGet("/users", async (IAdminUserService adminUserService, [AsParameters] PageQueryFilterDto filterDto, bool? isActive, CancellationToken ct) =>
+        group.MapGet("/users", async (IAdminUserService adminUserService, [AsParameters] PageQueryFilterDto filterDto, bool? status, CancellationToken ct) =>
         {
-            var result = await adminUserService.GetUsersAsync(filterDto, isActive, ct);
+            var result = await adminUserService.GetUsersAsync(filterDto, status, ct);
 
             return Results.Ok(result);
         })
         .WithRequestValidation<PageQueryFilterDto>()
         .Produces<PaginatedResponseDto<UserDto>>(StatusCodes.Status200OK, "application/json");
 
-        group.MapPut("/users", async (IAdminUserService adminUserService, UserStatusDto userStatusDto, CancellationToken ct) =>
+        group.MapPatch("/users/{id:guid}", async (IAdminUserService adminUserService, [FromBody] UpdateUserStatusDto updateUserStatusDto, Guid id, CancellationToken ct) =>
         {
-            await adminUserService.UpdateUserStatusAsync(userStatusDto, ct);
+            await adminUserService.UpdateUserStatusAsync(updateUserStatusDto, id, ct);
             
             return Results.NoContent();
         })
         .Produces(StatusCodes.Status204NoContent);
-
+        
         return app;
     }
 }
