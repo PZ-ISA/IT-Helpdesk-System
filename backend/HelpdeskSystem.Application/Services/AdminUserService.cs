@@ -21,8 +21,7 @@ public class AdminUserService : IAdminUserService
         _userManager = userManager;
         _context = context;
     }
-
-
+    
     public async Task<PaginatedResponseDto<UserDto>> GetUsersAsync(PageQueryFilterDto filterDto, bool? status, CancellationToken ct)
     {
         var baseQuery = _context.Users.AsQueryable();
