@@ -2,38 +2,38 @@
 using HelpdeskSystem.Application.Utils;
 using HelpdeskSystem.Domain.Common;
 using HelpdeskSystem.Domain.Dtos.Tickets;
-using HelpdeskSystem.Domain.Entities;
 using HelpdeskSystem.Domain.Enums;
 using HelpdeskSystem.Domain.Exceptions;
 using HelpdeskSystem.Domain.Interfaces;
 using HelpdeskSystem.Infrastructure.Contexts;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace HelpdeskSystem.Application.Services;
 
 public class AdminTicketService : IAdminTicketService
 {
-    private readonly UserManager<User> _userManager;
     private readonly IUserContextService _userContextService;
-    private readonly HelpdeskDbContext _context;
+    private readonly HelpdeskDbContext _dbContext;
 
-    public AdminTicketService(UserManager<User> userManager, IUserContextService userContextService, HelpdeskDbContext context)
+    public AdminTicketService(IUserContextService userContextService, HelpdeskDbContext dbContext)
     {
-        _userManager = userManager;
         _userContextService = userContextService;
-        _context = context;
+        _dbContext = dbContext;
     }
 
 
-    public async Task<PaginatedResponseDto<TicketDto>> GetTicketsAsync(PageQueryFilterDto filterDto, TicketStatus status, CancellationToken ct)
+    public async Task<PaginatedResponseDto<TicketDto>> GetTicketsAsync(PageQueryFilterDto filterDto, TicketStatus? status, CancellationToken ct)
     {
-        var baseQuery = _context.Tickets.AsQueryable();
+        var baseQuery = _dbContext.Tickets.AsQueryable();
 
         var count = await baseQuery.CountAsync(ct);
 
+        if (status.HasValue)
+        {
+            baseQuery = baseQuery.Where(x => x.Status == status.Value);
+        }
+
         var items = await baseQuery
-            .Where(x => x.Status == status)
             .Select(x => TicketMappers.MapToTicketDto(x))
             .Paginate(filterDto.PageNumber, filterDto.PageSize)
             .ToListAsync(ct);
@@ -45,8 +45,7 @@ public class AdminTicketService : IAdminTicketService
 
     public async Task<TicketDto> GetTicketByIdAsync(Guid id, CancellationToken ct)
     {
-        var ticket = await _context.Tickets
-            .FirstOrDefaultAsync(x => x.Id == id, ct);
+        var ticket = await _dbContext.Tickets.FirstOrDefaultAsync(x => x.Id == id, ct);
 
         if (ticket == null)
         {
@@ -59,30 +58,49 @@ public class AdminTicketService : IAdminTicketService
     }
 
     
-    public async Task UpdateTicketEmployeeAsync(UpdateTicketEmployeeDto updateTicketEmployeeDto, Guid id, CancellationToken ct)
+    public async Task AssignAdminToTicketAsync(Guid id, CancellationToken ct)
     {
-
         var userId = _userContextService.GetCurrentUserId();
         if (userId == null)
         {
             throw new UnauthorizedException("User is not logged in.");
         }
 
-        var ticket = await _context.Tickets
-            .FirstOrDefaultAsync(x => x.Id == id, ct);
+        var ticket = await _dbContext.Tickets.FirstOrDefaultAsync(x => x.Id == id, ct);
 
         if (ticket == null)
         {
             throw new NotFoundException("Ticket not found.");
         }
 
-        if (ticket.Status == TicketStatus.Closed)
+        if (ticket.Status == TicketStatus.New)
         {
-            throw new BadRequestException("Can not update closed ticket");
+            ticket.EmployeeUserId = userId.Value;
+            
+            ticket.Status = TicketStatus.Active;
+        }
+        else
+        {
+            throw new BadRequestException("Can not assign admin to this ticket");
         }
         
-        ticket.EmployeeUserId = updateTicketEmployeeDto.EmployeeUserId;
+        await _dbContext.SaveChangesAsync(ct);
+    }
+
+    public async Task CloseTicketAsync(Guid id, CancellationToken ct)
+    {
+        var ticket = await _dbContext.Tickets.FirstOrDefaultAsync(x => x.Id == id, ct);
         
-        await _context.SaveChangesAsync(ct);
+        if (ticket == null)
+        {
+            throw new NotFoundException("Ticket not found.");
+        }
+
+        if (ticket.Status == TicketStatus.Active)
+        {
+            ticket.Status = TicketStatus.Closed;
+        }
+        
+        await _dbContext.SaveChangesAsync(ct);
     }
 }

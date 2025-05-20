@@ -18,9 +18,9 @@ public static class AdminApi
             .RequireAuthorization("IsActive")
             .WithOpenApi();
 
-        group.MapGet("/users", async (IAdminUserService adminUserService, [AsParameters] PageQueryFilterDto filterDto, bool? status, CancellationToken ct) =>
+        group.MapGet("/users", async (IAdminUserService adminUserService, [AsParameters] PageQueryFilterDto filterDto, bool? isActive, CancellationToken ct) =>
         {
-            var result = await adminUserService.GetUsersAsync(filterDto, status, ct);
+            var result = await adminUserService.GetUsersAsync(filterDto, isActive, ct);
 
             return Results.Ok(result);
         })
@@ -36,7 +36,7 @@ public static class AdminApi
         .Produces(StatusCodes.Status204NoContent);
         
         
-        group.MapGet("/tickets", async (IAdminTicketService adminTicketService, [AsParameters] PageQueryFilterDto filterDto, TicketStatus status,CancellationToken ct) =>
+        group.MapGet("/tickets", async (IAdminTicketService adminTicketService, [AsParameters] PageQueryFilterDto filterDto, TicketStatus? status, CancellationToken ct) =>
         {
             var result = await adminTicketService.GetTicketsAsync(filterDto, status, ct);
             
@@ -52,13 +52,21 @@ public static class AdminApi
         })
         .Produces<TicketDto>(StatusCodes.Status200OK, "application/json");
         
-        group.MapPatch("/tickets/{id:guid}", async (IAdminTicketService adminTicketService, [FromBody] UpdateTicketEmployeeDto updateTicketEmployeeDto, Guid id, CancellationToken ct) =>
+        group.MapPost("/tickets/assign/{id:guid}", async (IAdminTicketService adminTicketService, Guid id, CancellationToken ct) =>
         {
-            await adminTicketService.UpdateTicketEmployeeAsync(updateTicketEmployeeDto, id, ct);
+            await adminTicketService.AssignAdminToTicketAsync(id, ct);
         
             return Results.NoContent();
         })
-        .Produces(StatusCodes.Status204NoContent);
+        .Produces(StatusCodes.Status200OK);
+        
+        group.MapPost("/tickets/close/{id:guid}", async (IAdminTicketService adminTicketService, Guid id, CancellationToken ct) =>
+        {
+            await adminTicketService.CloseTicketAsync(id, ct);
+    
+            return Results.NoContent();
+        })
+        .Produces(StatusCodes.Status200OK);
         
         return app;
     }
