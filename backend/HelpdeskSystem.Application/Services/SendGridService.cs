@@ -25,12 +25,10 @@ public class SendGridService : ISendGridService
     
     public async Task SendEmailAsync(string toEmail, string subject, string htmlContent)
     {
-        var emailSubject = SendGridConstants.EmailSubjectTemplate + subject;
-        
         var msg = new SendGridMessage
         {
             From = new EmailAddress(SendGridConstants.SendGridEmail, SendGridConstants.SendGridUsername),
-            Subject = emailSubject,
+            Subject = subject,
             HtmlContent = htmlContent,
         };
         msg.AddTo(new EmailAddress(toEmail));
@@ -40,7 +38,7 @@ public class SendGridService : ISendGridService
         var emailLog = new EmailLog
         {
             Email = toEmail,
-            Title = emailSubject,
+            Title = subject,
             Content = htmlContent,
             IsSuccess = response.IsSuccessStatusCode,
         };
