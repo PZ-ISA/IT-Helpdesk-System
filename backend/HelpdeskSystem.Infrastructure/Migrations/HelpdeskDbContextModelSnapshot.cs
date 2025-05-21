@@ -48,7 +48,7 @@ namespace HelpdeskSystem.Infrastructure.Migrations
 
                     b.HasIndex("ChatBotSessionId");
 
-                    b.ToTable("ChatBotMessages");
+                    b.ToTable("ChatBotMessages", (string)null);
                 });
 
             modelBuilder.Entity("HelpdeskSystem.Domain.Entities.ChatBotSession", b =>
@@ -80,7 +80,7 @@ namespace HelpdeskSystem.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ChatBotSessions");
+                    b.ToTable("ChatBotSessions", (string)null);
                 });
 
             modelBuilder.Entity("HelpdeskSystem.Domain.Entities.EmailLog", b =>
@@ -117,7 +117,7 @@ namespace HelpdeskSystem.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("EmailLogs");
+                    b.ToTable("EmailLogs", (string)null);
                 });
 
             modelBuilder.Entity("HelpdeskSystem.Domain.Entities.Notification", b =>
@@ -146,7 +146,7 @@ namespace HelpdeskSystem.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Notifications", (string)null);
                 });
 
             modelBuilder.Entity("HelpdeskSystem.Domain.Entities.RefreshToken", b =>
@@ -178,7 +178,7 @@ namespace HelpdeskSystem.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("RefreshTokens", (string)null);
                 });
 
             modelBuilder.Entity("HelpdeskSystem.Domain.Entities.Ticket", b =>
@@ -219,7 +219,7 @@ namespace HelpdeskSystem.Infrastructure.Migrations
 
                     b.HasIndex("EmployeeUserId");
 
-                    b.ToTable("Tickets");
+                    b.ToTable("Tickets", (string)null);
                 });
 
             modelBuilder.Entity("HelpdeskSystem.Domain.Entities.TicketMessage", b =>
@@ -250,7 +250,7 @@ namespace HelpdeskSystem.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("TicketMessages");
+                    b.ToTable("TicketMessages", (string)null);
                 });
 
             modelBuilder.Entity("HelpdeskSystem.Domain.Entities.User", b =>
