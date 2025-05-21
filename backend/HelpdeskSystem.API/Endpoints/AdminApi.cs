@@ -56,17 +56,17 @@ public static class AdminApi
         {
             await adminTicketService.AssignAdminToTicketAsync(id, ct);
         
-            return Results.NoContent();
+            return Results.Ok();
         })
-        .Produces(StatusCodes.Status204NoContent);
+        .Produces(StatusCodes.Status200OK);
         
         group.MapPost("/tickets/{id:guid}/close", async (IAdminTicketService adminTicketService, Guid id, CancellationToken ct) =>
         {
             await adminTicketService.CloseTicketAsync(id, ct);
     
-            return Results.NoContent();
+            return Results.Ok();
         })
-        .Produces(StatusCodes.Status204NoContent);
+        .Produces(StatusCodes.Status200OK);
         
         return app;
     }
