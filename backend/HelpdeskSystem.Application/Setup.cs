@@ -45,5 +45,7 @@ public static class Setup
         builder.Services.AddScoped<IDataExportService, DataExportService>();
         builder.Services.AddScoped<IAdminUserService, AdminUserService>();
         builder.Services.AddScoped<ISendGridService, SendGridService>();
+        builder.Services.AddScoped<IAdminTicketService, AdminTicketService>();
+        
     }
 }

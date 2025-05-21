@@ -14,17 +14,17 @@ namespace HelpdeskSystem.Application.Services;
 public class AdminUserService : IAdminUserService
 {
     private readonly UserManager<User> _userManager;
-    private readonly HelpdeskDbContext _context;
+    private readonly HelpdeskDbContext _dbContext;
 
-    public AdminUserService(UserManager<User> userManager, HelpdeskDbContext context)
+    public AdminUserService(UserManager<User> userManager, HelpdeskDbContext dbContext)
     {
         _userManager = userManager;
-        _context = context;
+        _dbContext = dbContext;
     }
     
     public async Task<PaginatedResponseDto<UserDto>> GetUsersAsync(PageQueryFilterDto filterDto, bool? status, CancellationToken ct)
     {
-        var baseQuery = _context.Users.AsQueryable();
+        var baseQuery = _dbContext.Users.AsQueryable();
 
         var count = await baseQuery.CountAsync(ct);
         
