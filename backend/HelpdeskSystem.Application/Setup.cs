@@ -33,12 +33,19 @@ public static class Setup
 
         builder.Services.AddValidatorsFromAssemblyContaining<PageQueryFilterDtoValidator>();
 
+        var assembly = typeof(TemplateService).Assembly;
+        var directory = Path.GetDirectoryName(assembly.Location)!;
+        var templatesPath = Path.Combine(directory, "Templates");
+        builder.Services.AddSingleton(new TemplateService(templatesPath));
+        
         builder.Services.AddScoped<IUserContextService, UserContextService>();
         builder.Services.AddScoped<IAccountService, AccountService>();
         builder.Services.AddScoped<IChatBotService, ChatBotService>();
         builder.Services.AddScoped<ITicketService, TicketService>();
         builder.Services.AddScoped<IDataExportService, DataExportService>();
         builder.Services.AddScoped<IAdminUserService, AdminUserService>();
+        builder.Services.AddScoped<ISendGridService, SendGridService>();
         builder.Services.AddScoped<IAdminTicketService, AdminTicketService>();
+        
     }
 }
