@@ -13,8 +13,8 @@ public static class TicketApi
     {
         var group = app.MapGroup("/api/tickets")
             .WithTags("Ticket")
-            .RequireAuthorization("IsActive")
             .RequireAuthorization("Employee")
+            .RequireAuthorization("IsActive")
             .WithOpenApi();
 
         group.MapPost("", async (ITicketService ticketService, [FromBody] CreateTicketDto dto, CancellationToken ct) =>
