@@ -18,9 +18,9 @@ public static class AdminApi
             .RequireAuthorization("IsActive")
             .WithOpenApi();
 
-        group.MapGet("/users", async (IAdminUserService adminUserService, [AsParameters] PageQueryFilterDto filterDto, bool? isActive, CancellationToken ct) =>
+        group.MapGet("/users", async (IAdminUserService adminUserService, [AsParameters] PageQueryFilterDto filterDto, bool? status, CancellationToken ct) =>
         {
-            var result = await adminUserService.GetUsersAsync(filterDto, isActive, ct);
+            var result = await adminUserService.GetUsersAsync(filterDto, status, ct);
 
             return Results.Ok(result);
         })
@@ -52,19 +52,19 @@ public static class AdminApi
         })
         .Produces<TicketDto>(StatusCodes.Status200OK, "application/json");
         
-        group.MapPost("/tickets/assign/{id:guid}", async (IAdminTicketService adminTicketService, Guid id, CancellationToken ct) =>
+        group.MapPost("/tickets/{id:guid}/assign", async (IAdminTicketService adminTicketService, Guid id, CancellationToken ct) =>
         {
             await adminTicketService.AssignAdminToTicketAsync(id, ct);
         
-            return Results.NoContent();
+            return Results.Ok();
         })
         .Produces(StatusCodes.Status200OK);
         
-        group.MapPost("/tickets/close/{id:guid}", async (IAdminTicketService adminTicketService, Guid id, CancellationToken ct) =>
+        group.MapPost("/tickets/{id:guid}/close", async (IAdminTicketService adminTicketService, Guid id, CancellationToken ct) =>
         {
             await adminTicketService.CloseTicketAsync(id, ct);
     
-            return Results.NoContent();
+            return Results.Ok();
         })
         .Produces(StatusCodes.Status200OK);
         

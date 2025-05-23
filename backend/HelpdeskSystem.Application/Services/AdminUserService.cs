@@ -22,15 +22,15 @@ public class AdminUserService : IAdminUserService
         _dbContext = dbContext;
     }
     
-    public async Task<PaginatedResponseDto<UserDto>> GetUsersAsync(PageQueryFilterDto filterDto, bool? isActive, CancellationToken ct)
+    public async Task<PaginatedResponseDto<UserDto>> GetUsersAsync(PageQueryFilterDto filterDto, bool? status, CancellationToken ct)
     {
         var baseQuery = _dbContext.Users.AsQueryable();
 
         var count = await baseQuery.CountAsync(ct);
         
-        if (isActive.HasValue)
+        if (status.HasValue)
         {
-            baseQuery = baseQuery.Where(x => x.IsActive == isActive.Value);
+            baseQuery = baseQuery.Where(x => x.IsActive == status.Value);
         }
 
         var items = await baseQuery

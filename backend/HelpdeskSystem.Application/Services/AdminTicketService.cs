@@ -14,11 +14,13 @@ public class AdminTicketService : IAdminTicketService
 {
     private readonly IUserContextService _userContextService;
     private readonly HelpdeskDbContext _dbContext;
+    private readonly TimeProvider _timeProvider;
 
-    public AdminTicketService(IUserContextService userContextService, HelpdeskDbContext dbContext)
+    public AdminTicketService(IUserContextService userContextService, HelpdeskDbContext dbContext, TimeProvider timeProvider)
     {
         _userContextService = userContextService;
         _dbContext = dbContext;
+        _timeProvider = timeProvider;
     }
 
 
@@ -73,16 +75,15 @@ public class AdminTicketService : IAdminTicketService
             throw new NotFoundException("Ticket not found.");
         }
 
-        if (ticket.Status == TicketStatus.New)
-        {
-            ticket.EmployeeUserId = userId.Value;
-            
-            ticket.Status = TicketStatus.Active;
-        }
-        else
+        if (ticket.Status != TicketStatus.New || ticket.AdminUserId is not null)
         {
             throw new BadRequestException("Can not assign admin to this ticket");
+
         }
+        
+        ticket.AdminUserId = userId.Value;
+        ticket.Status = TicketStatus.Active;
+        ticket.UpdatedAt = _timeProvider.GetUtcNow();
         
         await _dbContext.SaveChangesAsync(ct);
     }
@@ -96,10 +97,13 @@ public class AdminTicketService : IAdminTicketService
             throw new NotFoundException("Ticket not found.");
         }
 
-        if (ticket.Status == TicketStatus.Active)
+        if (ticket.Status != TicketStatus.Active)
         {
-            ticket.Status = TicketStatus.Closed;
+            throw new BadRequestException("Can not close this ticket");
         }
+        
+        ticket.Status = TicketStatus.Closed;
+        ticket.UpdatedAt = _timeProvider.GetUtcNow();
         
         await _dbContext.SaveChangesAsync(ct);
     }
