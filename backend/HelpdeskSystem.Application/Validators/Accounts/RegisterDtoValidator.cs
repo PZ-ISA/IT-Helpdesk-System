@@ -23,7 +23,7 @@ public class RegisterDtoValidator : AbstractValidator<RegisterDto>
             .EmailAddress()
             .WithMessage("Email field is required and must be type of email address")
             .NotEqual("chat@bot.com")
-            .WithMessage("Email address is already in use");
+            .WithMessage("Email address is already in use"); 
 
         RuleFor(x => x.ConfirmPassword)
             .NotEmpty()

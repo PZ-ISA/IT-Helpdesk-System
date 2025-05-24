@@ -33,10 +33,22 @@ public class AdminUserService : IAdminUserService
             baseQuery = baseQuery.Where(x => x.IsActive == status.Value);
         }
 
-        var items = await baseQuery
-            .Select(x => UserMappers.MapToUserDto(x))
+        var users = await baseQuery
             .Paginate(filterDto.PageNumber, filterDto.PageSize)
             .ToListAsync(ct);
+
+        var items = new List<UserDto>();
+        
+        foreach (var user in users)
+        {
+            var userDto = UserMappers.MapToUserDto(user);
+            
+            var roles = await _userManager.GetRolesAsync(user);
+
+            userDto.Role = roles.ToList()[0];
+            
+            items.Add(userDto);
+        }
 
         var result = new PaginatedResponseDto<UserDto>(items, filterDto.PageNumber, filterDto.PageSize, count);
 
