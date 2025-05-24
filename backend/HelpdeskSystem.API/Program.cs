@@ -15,11 +15,15 @@ builder.Services.AddOpenApiDocumentation();
 
 builder.Services.ConfigureCulture();
 
+builder.Services.AddCorsPolicy();
+
 var app = builder.Build();
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
 //app.UseExceptionHandler();
 app.UseAuthenticationProblemDetails();
+
+app.UseCors("FrontendClient");
 
 if (app.Environment.IsDevelopment())
 {
