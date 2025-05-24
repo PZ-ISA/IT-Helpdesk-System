@@ -13,26 +13,31 @@ public static class UserApi
             .RequireAuthorization("IsActive")
             .WithOpenApi();
 
-        group.MapGet("", (IUserService userService, CancellationToken ct) =>
+        group.MapGet("", async (IUserService userService, CancellationToken ct) =>
         {
-            var result = userService.GetUserAsync(ct);
+            var result = await userService.GetUserAsync(ct);
 
             return Results.Ok(result);
         })
         .Produces<UserDto>(StatusCodes.Status200OK, "application/json");
 
-        group.MapPost("/change-password", async (IUserService userService, ChangePasswordDto changePasswordDto, CancellationToken ct) =>
+        group.MapPatch("/change-password", async (IUserService userService, ChangePasswordDto changePasswordDto, CancellationToken ct) =>
         {
             await userService.ChangePasswordAsync(changePasswordDto, ct);
+            
+            return Results.NoContent();
         })
-        .Produces(StatusCodes.Status200OK);
+        .WithRequestValidation<ChangePasswordDto>()
+        .Produces(StatusCodes.Status204NoContent);
         
         group.MapPut("", async (IUserService userService, UpdateUserDto updateUserDto, CancellationToken ct) =>
         {
             await userService.UpdateUserAsync(updateUserDto, ct);
+            
+            return Results.NoContent();
         })
         .WithRequestValidation<UpdateUserDto>()
-        .Produces(StatusCodes.Status200OK);
+        .Produces(StatusCodes.Status204NoContent);
 
         return app;
     }

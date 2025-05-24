@@ -31,13 +31,17 @@ public class UserService : IUserService
             throw new UnauthorizedException("User is not logged in.");
         }
         
-        var user = _dbContext.Users.FirstOrDefault(x => x.Id == userId);
+        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId, ct);
         if (user == null)
         {
             throw new UnauthorizedException("User not found.");
         }
 
         var userDto = UserMappers.MapToUserDto(user);
+
+        var roles = await _userManager.GetRolesAsync(user);
+
+        userDto.Role = roles.ToList()[0];
         
         return userDto;
     }
@@ -51,15 +55,10 @@ public class UserService : IUserService
             throw new UnauthorizedException("User is not logged in.");
         }
         
-        var user = _dbContext.Users.FirstOrDefault(x => x.Id == userId);
+        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId, ct);
         if (user == null)
         {
             throw new UnauthorizedException("User not found.");
-        }
-
-        if (changePasswordDto.CurrentPassword == changePasswordDto.NewPassword)
-        {
-            throw new UnauthorizedException("Passwords can not match.");
         }
         
         var result = await _userManager.ChangePasswordAsync(user, changePasswordDto.CurrentPassword, changePasswordDto.NewPassword);
@@ -88,7 +87,7 @@ public class UserService : IUserService
         var existingUser = await _userManager.FindByEmailAsync(updateUserDto.Email);
         if (existingUser is not null && existingUser.Id != userId)
         {
-            throw new BadRequestException("Email is already taken.");
+            throw new BadRequestException("Email address is already in use.");
         }
         
         user.Name = updateUserDto.Name;
@@ -97,8 +96,6 @@ public class UserService : IUserService
         user.NormalizedUserName = _userManager.NormalizeEmail(updateUserDto.Email);
         user.Email = updateUserDto.Email;
         user.NormalizedEmail = _userManager.NormalizeEmail(updateUserDto.Email);
-        
-        _dbContext.Users.Update(user);
         
         await _dbContext.SaveChangesAsync(ct);
     }
