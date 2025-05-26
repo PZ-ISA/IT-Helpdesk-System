@@ -19,7 +19,8 @@ public static class ExportDataApi
 
             return Results.Ok(result);
         })
-        .Produces<ICollection<ExportTicketDto>>(StatusCodes.Status200OK, "application/json");
+        .Produces<ICollection<ExportTicketDto>>(StatusCodes.Status200OK, "application/json")
+        .WithDescription("Exports all closed tickets that contain messages and feedback. Each ticket includes its metadata and the messages exchanged, with sender roles.");
         
         group.MapGet("/chats", async (IDataExportService dataExportService, CancellationToken ct) =>
         { 
@@ -27,7 +28,8 @@ public static class ExportDataApi
             
             return Results.Ok(result);
         })
-        .Produces<ICollection<ExportChatDto>>(StatusCodes.Status200OK, "application/json");
+        .Produces<ICollection<ExportChatDto>>(StatusCodes.Status200OK, "application/json")
+        .WithDescription("Exports all chatbot sessions that include both messages and user feedback. Each session includes its metadata and the exchanged messages.");
         
         return app;
     }

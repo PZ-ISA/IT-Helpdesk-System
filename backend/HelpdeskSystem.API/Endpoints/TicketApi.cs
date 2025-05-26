@@ -24,7 +24,8 @@ public static class TicketApi
             return Results.Created($"/api/tickets/{id}", null);
         })
         .WithRequestValidation<CreateTicketDto>()
-        .Produces(StatusCodes.Status201Created);
+        .Produces(StatusCodes.Status201Created)
+        .WithDescription("Creates a new ticket. The ticket will be assigned to the logged-in user, and its status will be set to 'New'.");
 
         group.MapGet("", async (ITicketService ticketService, [AsParameters] PageQueryFilterDto filterDto, CancellationToken ct) =>
         {
@@ -33,7 +34,8 @@ public static class TicketApi
             return Results.Ok(result);
         })
         .WithRequestValidation<PageQueryFilterDto>()
-        .Produces<PaginatedResponseDto<TicketDto>>(StatusCodes.Status200OK, "application/json");
+        .Produces<PaginatedResponseDto<TicketDto>>(StatusCodes.Status200OK, "application/json")
+        .WithDescription("Returns a paginated list of user tickets. Allowed page sizes [10,25,50,100]");
         
         group.MapGet("/{id:guid}", async (ITicketService ticketService, Guid id, CancellationToken ct) =>
         {
@@ -41,7 +43,8 @@ public static class TicketApi
 
             return Results.Ok(result);
         })
-        .Produces<TicketDto>(StatusCodes.Status200OK, "application/json");
+        .Produces<TicketDto>(StatusCodes.Status200OK, "application/json")
+        .WithDescription("Returns a user ticket with the specified ID");
         
         group.MapPut("/{id:guid}", async (ITicketService ticketService, [FromBody] CreateTicketDto dto, Guid id, CancellationToken ct) =>
         {
@@ -50,7 +53,8 @@ public static class TicketApi
             return Results.NoContent();
         })
         .WithRequestValidation<CreateTicketDto>()
-        .Produces(StatusCodes.Status204NoContent);
+        .Produces(StatusCodes.Status204NoContent)
+        .WithDescription("Updates data of the selected user ticket. Updating closed ticket is forbidden.");
         
         group.MapDelete("/{id:guid}", async (ITicketService ticketService, Guid id, CancellationToken ct) =>
         {
@@ -58,7 +62,8 @@ public static class TicketApi
 
             return Results.NoContent();
         })
-        .Produces(StatusCodes.Status204NoContent);
+        .Produces(StatusCodes.Status204NoContent)
+        .WithDescription("Deletes a selected user ticket.");
         
         group.MapPost("/{id:guid}/feedback", async (ITicketService ticketService, Guid id, [FromBody] FeedbackDto dto, CancellationToken ct) =>
         {
@@ -67,8 +72,9 @@ public static class TicketApi
             return Results.Ok();
          })
         .WithRequestValidation<FeedbackDto>()
-        .Produces(StatusCodes.Status200OK);
-        
+        .Produces(StatusCodes.Status200OK)
+        .WithDescription("Adds feedback to the specified ticket. Feedback can only be added to tickets with status 'Closed'.");
+
         return app;
     }
 }

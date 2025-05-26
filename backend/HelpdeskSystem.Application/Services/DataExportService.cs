@@ -24,7 +24,7 @@ public class DataExportService : IDataExportService
         var tickets = await _dbContext.Tickets
             .Include(t => t.TicketMessages)
             .ThenInclude(m => m.User)
-            .Where(t => t.TicketMessages.Any() && t.Status == TicketStatus.Closed)
+            .Where(t => t.TicketMessages.Any() && t.Status == TicketStatus.Closed && t.Feedback != null)
             .ToListAsync(ct);
 
         var result = new List<ExportTicketDto>();
@@ -51,7 +51,8 @@ public class DataExportService : IDataExportService
                 TicketId = t.Id,
                 Title = t.Title,
                 Description = t.Description,
-                Messages = exportMessages
+                Messages = exportMessages,
+                Feedback = t.Feedback.ToString()!,
             });
         }
 
@@ -68,7 +69,7 @@ public class DataExportService : IDataExportService
                 Id = c.Id,
                 Title = c.Title,
                 CreatedAt = c.CreatedAt,
-                Feedback = c.Feedback.ToString(),
+                Feedback = c.Feedback.ToString()!,
                 Messages = c.ChatBotMessages
                     .Select(m => new ExportChatMessageDto
                     {
