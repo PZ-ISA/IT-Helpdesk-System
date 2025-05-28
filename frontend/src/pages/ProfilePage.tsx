@@ -11,37 +11,38 @@ const ProfilePage = () => {
     const handleClose = () => setOpen(false);
 
     const [formData, setFormData] = useState({
-		currentPassword: '',
-		newPassword: '',
-		confirmPassword: '',
-	});
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+    });
 
-	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setFormData({ ...formData, [e.target.name]: e.target.value });
-	};
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		// e.preventDefault();
-		// try {
-		// 	await login(formData);
-		// 	alert('Login successful!');
-		// } catch (error) {
-		// 	alert(error instanceof Error ? error.message : 'Login failed');
-		// }
+    const handleSubmit = async (e: React.FormEvent) => {
         if(formData.newPassword !== formData.confirmPassword)
         {
             alert("New password doesn't match.")
         }
-	};
+    };
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
             <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-sm">
                 {/* Logo */}
                 <h1 className="text-3xl font-bold text-center mb-2">USER PROFILE</h1>
-                <p>Name: {profile.name} {profile.surname}</p>
-                <p>Email: {profile.email}</p>
-                <p>Role: {profile.role}</p>
+                <div className="space-y-2">
+                    <p className="text-lg font-medium">
+                        <span className="font-bold">Name:</span> {profile.name} {profile.surname}
+                    </p>
+                    <p className="text-lg font-medium">
+                        <span className="font-bold">Email:</span> {profile.email}
+                    </p>
+                    <p className="text-lg font-medium">
+                        <span className="font-bold">Role:</span> {profile.role}
+                    </p>
+                </div>
                 <div className="flex justify-center mt-4">
                     <Button onClick={handleOpen}>Reset password</Button>
                 </div>
