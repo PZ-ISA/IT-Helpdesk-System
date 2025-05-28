@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import AuthPage from './pages/AuthPage';
 import MainLayout from './components/layout/MainLayout';
+import ProfilePage from './pages/ProfilePage';
+import UsersPage from './pages/UsersPage';
 
 function App() {
 	return (
@@ -8,8 +10,10 @@ function App() {
 			<Routes>
 				<Route path='/' element={<AuthPage />} />
 				<Route path='/main' element={<MainLayout />}>
-					{/* Tutaj routy na content na strony */}
+					<Route path='profile' element={<ProfilePage />} />
+					<Route path='users' element={<UsersPage />} />
 				</Route>
+
 			</Routes>
 		</BrowserRouter>
 	);
