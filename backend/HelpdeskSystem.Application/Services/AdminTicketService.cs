@@ -90,6 +90,12 @@ public class AdminTicketService : IAdminTicketService
 
     public async Task CloseTicketAsync(Guid id, CancellationToken ct)
     {
+        var userId = _userContextService.GetCurrentUserId();
+        if (userId == null)
+        {
+            throw new UnauthorizedException("User is not logged in.");
+        }
+        
         var ticket = await _dbContext.Tickets.FirstOrDefaultAsync(x => x.Id == id, ct);
         
         if (ticket == null)
@@ -100,6 +106,11 @@ public class AdminTicketService : IAdminTicketService
         if (ticket.Status != TicketStatus.Active)
         {
             throw new BadRequestException("Can not close this ticket");
+        }
+
+        if (ticket.AdminUserId != userId)
+        {
+            throw new BadRequestException("This user can not close this ticket");
         }
         
         ticket.Status = TicketStatus.Closed;
