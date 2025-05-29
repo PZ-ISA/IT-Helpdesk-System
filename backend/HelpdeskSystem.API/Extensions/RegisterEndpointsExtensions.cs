@@ -12,6 +12,7 @@ public static class RegisterEndpointsExtensions
             .MapTicketApi()
             .MapAdminApi()
             .MapUserApi()
+            .MapTicketMessageApi()
             .MapExportDataApi();
     }
 }
