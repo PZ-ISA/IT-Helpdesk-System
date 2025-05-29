@@ -20,13 +20,15 @@ public class TicketMessageService : ITicketMessageService
     private readonly HelpdeskDbContext _dbContext;
     private readonly UserManager<User> _userManager;
     private readonly ISendGridService _sendGridService;
+    private readonly TemplateService _templateService;
 
-    public TicketMessageService(IUserContextService userContextService, HelpdeskDbContext dbContext, UserManager<User> userManager, ISendGridService sendGridService)
+    public TicketMessageService(IUserContextService userContextService, HelpdeskDbContext dbContext, UserManager<User> userManager, ISendGridService sendGridService, TemplateService templateService)
     {
         _dbContext = dbContext;
         _userContextService = userContextService;
         _userManager = userManager;
         _sendGridService = sendGridService;
+        _templateService = templateService;
     }
     
     public async Task<PaginatedResponseDto<TicketMessageDto>> GetTicketMessagesAsync(PageQueryFilterDto filterDto, Guid ticketId, CancellationToken ct)
@@ -84,13 +86,15 @@ public class TicketMessageService : ITicketMessageService
             {
                 throw new NotFoundException("Employee not found.");
             }
-
-            var template = await File.ReadAllTextAsync("../HelpdeskSystem.Application/Templates/ReplyNotification.html", ct);
             
-            template = template
-                .Replace("{{UserName}}", employeeUser.Name)
-                .Replace("{{TicketTitle}}", ticket.Title)
-                .Replace("{{MessageContent}}", createTicketMessageDto.Message);
+            var variables = new Dictionary<string, string>
+            {
+                { "UserName", employeeUser.Name },
+                { "TicketTitle", ticket.Title },
+                { "MessageContent", createTicketMessageDto.Message }
+            };
+
+            var template = _templateService.LoadTemplate("ReplyNotification", variables);
             
             await _sendGridService.SendEmailAsync(
                 employeeUser.Email,
