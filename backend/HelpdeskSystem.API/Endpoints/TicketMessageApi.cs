@@ -20,7 +20,8 @@ public static class TicketMessageApi
             
             return Results.Ok(result);
         })
-        .Produces<PaginatedResponseDto<TicketMessageDto>>(StatusCodes.Status200OK, "application/json");
+        .Produces<PaginatedResponseDto<TicketMessageDto>>(StatusCodes.Status200OK, "application/json")
+        .WithDescription("Returns a paginated list of messages for a given ticket.");
         
         group.MapPost("/{id:guid}/add", async (ITicketMessageService ticketMessageService, CreateTicketMessageDto createTicketMessageDto, Guid id, CancellationToken ct) =>
         {
@@ -28,7 +29,8 @@ public static class TicketMessageApi
             
             return Results.Ok(result);
         })
-        .Produces(StatusCodes.Status201Created);
+        .Produces(StatusCodes.Status201Created)
+        .WithDescription("Adds a new message to the given ticket.");
 
         return app;
     }
