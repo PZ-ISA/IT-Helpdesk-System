@@ -7,6 +7,9 @@ namespace HelpdeskSystem.API.Extensions;
 
 public static class SeedingExtensions
 {
+    private const int AdminCount = 5;
+    private const int EmployeeCount = 20;
+    
     public static async Task SeedAsync(this WebApplication app, IConfiguration configuration)
     {
         await using var scope = app.Services.CreateAsyncScope();
@@ -17,7 +20,11 @@ public static class SeedingExtensions
         
         await context.Database.EnsureCreatedAsync();
         
+        // Required seeders
         await RolesSeeder.SeedAsync(roleManager);
         await ChatBotUserSeeder.SeedAsync(roleManager, userManager, configuration);
+        
+        // Development seeders
+        await UsersSeeder.SeedAsync(userManager, EmployeeCount, AdminCount);
     }
 }
