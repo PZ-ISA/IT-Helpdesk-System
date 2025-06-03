@@ -13,7 +13,9 @@ public static class UsersSeeder
     {
         var seedUserCount = employeesCount + adminsCount;
         var count = await userManager.Users.CountAsync();
-        if (count >= seedUserCount)
+        
+        // Skip if there is more than chat bot user who has been already seeded
+        if (count > 1)
         {
             return;
         }
@@ -21,7 +23,7 @@ public static class UsersSeeder
         var faker = new Faker<User>("pl")
             .RuleFor(u => u.Name, f => f.Person.FirstName)
             .RuleFor(u => u.Surname, f => f.Person.LastName)
-            .RuleFor(u => u.Email, f => f.Person.Email)
+            .RuleFor(u => u.Email, (f, u) => f.Internet.Email(u.Name, u.Surname))
             .RuleFor(u => u.IsActive, f => f.PickRandom(false, true));
         
         var users = faker.Generate(seedUserCount);
