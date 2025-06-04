@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using HelpdeskSystem.Application.Mappers;
+﻿using HelpdeskSystem.Application.Mappers;
 using HelpdeskSystem.Domain.Dtos.Users;
 using HelpdeskSystem.Domain.Entities;
 using HelpdeskSystem.Domain.Exceptions;

@@ -12,7 +12,7 @@ public static class TicketMessagesSeeder
     
     public static async Task SeedAsync(HelpdeskDbContext dbContext)
     {
-        if (await dbContext.Tickets.AnyAsync())
+        if (await dbContext.TicketMessages.AnyAsync())
         {
             return;
         }
@@ -28,11 +28,13 @@ public static class TicketMessagesSeeder
 
         var faker = new Faker<TicketMessage>("pl")
             .RuleFor(t => t.Message, f => f.Lorem.Sentences());
-
+        
+        var ticketMessages = new List<TicketMessage>();
+        
         foreach (var ticket in sampleTickets)
         {
             // Generate 1-5 messages per ticket
-            var ticketMessagesCount = R.Next(1, 5);
+            var ticketMessagesCount = R.Next(3, 8);
             for (var i = 0; i < ticketMessagesCount; i++)
             {
                 // Chose who is author of the message
@@ -42,10 +44,11 @@ public static class TicketMessagesSeeder
                 message.TicketId = ticket.Id;
                 message.UserId = isAdminMessage ? ticket.AdminUserId!.Value : ticket.EmployeeUserId;
                 
-                await dbContext.TicketMessages.AddAsync(message);
+                ticketMessages.Add(message);
             }
         }
         
+        await dbContext.TicketMessages.AddRangeAsync(ticketMessages);
         await dbContext.SaveChangesAsync();
     }
 }

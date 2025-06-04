@@ -10,7 +10,8 @@ public static class SeedingExtensions
     private const int AdminCount = 5;
     private const int EmployeeCount = 15;
     private const int TicketsCount = 20;
-    private const int ChatBotSessionsCount = 30; 
+    private const int ChatBotSessionsCount = 30;
+    private const int NotificationsCount = 40;
     
     public static async Task SeedAsync(this WebApplication app, IConfiguration configuration)
     {
@@ -34,6 +35,8 @@ public static class SeedingExtensions
             await TicketsSeeder.SeedAsync(context, userManager, TicketsCount);
             await TicketMessagesSeeder.SeedAsync(context);
             await ChatBotSessionsSeeder.SeedAsync(context, timeProvider, ChatBotSessionsCount);
+            await ChatBotMessagesSeeder.SeedAsync(context, timeProvider);
+            await NotificationsSeeder.SeedAsync(context, NotificationsCount);
         }
     }
 }
