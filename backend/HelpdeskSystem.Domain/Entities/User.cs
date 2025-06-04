@@ -1,4 +1,3 @@
-using HelpdeskSystem.Domain.Dtos.Accounts;
 using Microsoft.AspNetCore.Identity;
 
 namespace HelpdeskSystem.Domain.Entities;
