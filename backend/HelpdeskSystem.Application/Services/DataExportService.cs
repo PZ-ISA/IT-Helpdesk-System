@@ -24,7 +24,7 @@ public class DataExportService : IDataExportService
         var tickets = await _dbContext.Tickets
             .Include(t => t.TicketMessages)
             .ThenInclude(m => m.User)
-            .Where(t => t.TicketMessages.Any() && t.Status == TicketStatus.Closed && t.Feedback != null)
+            .Where(t => t.TicketMessages.Count > 0 && t.Status == TicketStatus.Closed && t.Feedback != null)
             .ToListAsync(ct);
 
         var result = new List<ExportTicketDto>();
@@ -35,7 +35,7 @@ public class DataExportService : IDataExportService
 
             foreach (var m in t.TicketMessages)
             {
-                var roles = await _userManager.GetRolesAsync(m.User);
+                var roles = await _userManager.GetRolesAsync(m.User!);
                 var senderRole = roles.FirstOrDefault() ?? "Unknown";
 
                 exportMessages.Add(new ExportTicketMessageDto
@@ -63,7 +63,7 @@ public class DataExportService : IDataExportService
     {
         var data = await _dbContext.ChatBotSessions
             .Include(c => c.ChatBotMessages)
-            .Where(c => c.ChatBotMessages != null && c.ChatBotMessages.Count > 0 && c.Feedback != null)
+            .Where(c => c.ChatBotMessages.Count > 0 && c.Feedback != null)
             .Select(c => new ExportChatDto
             {
                 Id = c.Id,

@@ -16,7 +16,7 @@ public sealed record Ticket : BaseEntity
 
     public User? EmployeeUser { get; set; }
     public User? AdminUser { get; set; }
-    public ICollection<TicketMessage>? TicketMessages { get; set; }
+    public ICollection<TicketMessage> TicketMessages { get; set; } = new List<TicketMessage>();
 }
 
 public class TicketConfiguration : BaseEntityConfiguration<Ticket>

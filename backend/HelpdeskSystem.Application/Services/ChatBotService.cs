@@ -117,7 +117,7 @@ public class ChatBotService : IChatBotService
             throw new BadRequestException("The chatbot session has ended.");
         }
 
-        chatBotSession.ChatBotMessages?.Add(new ChatBotMessage
+        chatBotSession.ChatBotMessages.Add(new ChatBotMessage
         {
             CreatedAt = messageDto.Date,
             UpdatedAt = messageDto.Date,
@@ -127,7 +127,7 @@ public class ChatBotService : IChatBotService
         
         //chatbot to do
         
-        chatBotSession.ChatBotMessages?.Add(new ChatBotMessage
+        chatBotSession.ChatBotMessages.Add(new ChatBotMessage
         {
             Message = "Welcome to chatbot!",
             IsUserMessage = false
