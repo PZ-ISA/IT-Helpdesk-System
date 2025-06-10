@@ -1,4 +1,5 @@
-﻿using HelpdeskSystem.Application.Mappers;
+﻿using HelpdeskSystem.Application.Common;
+using HelpdeskSystem.Application.Mappers;
 using HelpdeskSystem.Application.Utils;
 using HelpdeskSystem.Domain.Common;
 using HelpdeskSystem.Domain.Dtos.TicketMessages;
@@ -33,29 +34,37 @@ public class TicketMessageService : ITicketMessageService
     
     public async Task<PaginatedResponseDto<TicketMessageDto>> GetTicketMessagesAsync(PageQueryFilterDto filterDto, Guid ticketId, CancellationToken ct)
     {
-        var baseQuery = _dbContext.TicketMessages.AsQueryable();
-        
-        var count = await baseQuery.CountAsync(ct);
-
-        baseQuery = baseQuery.Where(x => x.TicketId == ticketId);
-        
-        var ticketMessages = await baseQuery
-            .Paginate(filterDto.PageNumber, filterDto.PageSize)
-            .ToListAsync(ct);
-
-        var items = new List<TicketMessageDto>();
-
-        foreach (var ticketMessage in ticketMessages)
+        var userId = _userContextService.GetCurrentUserId();
+        if (userId == null)
         {
-            var ticketMessageDto = TicketMessageMappers.MapToTicketMessageDto(ticketMessage);
-            
-            items.Add(ticketMessageDto);
+            throw new UnauthorizedException("User is not logged in.");
         }
-
+        
+        var ticket = await _dbContext.Tickets
+            .Include(x => x.TicketMessages)
+            .FirstOrDefaultAsync(x => x.Id == ticketId, ct);
+        
+        if (ticket is null)
+        {
+            throw new NotFoundException("Ticket not found.");
+        }
+        
+        if (ticket.AdminUserId != userId && ticket.EmployeeUserId != userId)
+        {
+            throw new ForbidException("Insufficient permissions to access this ticket.");
+        }
+        
+        var count = ticket.TicketMessages.Count;
+        
+        var items = ticket.TicketMessages
+            .Select(TicketMessageMappers.MapToTicketMessageDto)
+            .Paginate(filterDto.PageNumber, filterDto.PageSize)
+            .ToList();
+        
         return new PaginatedResponseDto<TicketMessageDto>(items, filterDto.PageNumber, filterDto.PageSize, count);
     }
 
-    public async Task<Guid> CreateTicketMessageAsync(CreateTicketMessageDto createTicketMessageDto, Guid ticketId, CancellationToken ct)
+    public async Task CreateTicketMessageAsync(CreateTicketMessageDto createTicketMessageDto, Guid ticketId, CancellationToken ct)
     {
         var userId = _userContextService.GetCurrentUserId();
         if (userId == null)
@@ -63,18 +72,22 @@ public class TicketMessageService : ITicketMessageService
             throw new UnauthorizedException("User is not logged in.");
         }
         
-        var user = _dbContext.Users.FirstOrDefault(x => x.Id == userId);
-        if (user == null)
-        {
-            throw new NotFoundException("User not found.");
-        }
+        var user = await _dbContext.Users.FirstAsync(x => x.Id == userId, ct);
         
         var role = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
         
-        var ticket = await _dbContext.Tickets.FirstOrDefaultAsync(x => x.Id == ticketId, ct);
+        var ticket = await _dbContext.Tickets
+            .Include(x => x.TicketMessages)
+            .FirstOrDefaultAsync(x => x.Id == ticketId, ct);
+        
         if (ticket == null)
         {
             throw new NotFoundException("Ticket not found.");
+        }
+        
+        if (ticket.AdminUserId != userId && ticket.EmployeeUserId != userId)
+        {
+            throw new ForbidException("Insufficient permissions to access this ticket.");
         }
 
         if (role == "Admin")
@@ -96,27 +109,22 @@ public class TicketMessageService : ITicketMessageService
 
             var template = _templateService.LoadTemplate("ReplyNotification", variables);
             
+            var subject = $"{SendGridConstants.EmailSubjectTemplate}{ticket.Title}";
+            
             await _sendGridService.SendEmailAsync(
                 employeeUser.Email,
-                "Nowa odpowiedź na Twoje zgłoszenie",
+                subject,
                 template
             );
         }
-        
-        var ticketMessage = new TicketMessage
+
+        ticket.TicketMessages.Add(new TicketMessage
         {
             Message = createTicketMessageDto.Message,
             TicketId = ticketId,
             UserId = userId.Value
-        };
+        });
         
-        
-        
-        
-        
-        await _dbContext.TicketMessages.AddAsync(ticketMessage, ct);
         await _dbContext.SaveChangesAsync(ct);
-        
-        return ticketMessage.Id;
     }
 }

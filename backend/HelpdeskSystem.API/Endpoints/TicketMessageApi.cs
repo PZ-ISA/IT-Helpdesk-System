@@ -9,12 +9,12 @@ public static class TicketMessageApi
 {
     public static IEndpointRouteBuilder MapTicketMessageApi(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/tickets/messages")
+        var group = app.MapGroup("/api/tickets/{id:guid}/messages")
             .WithTags("TicketMessages")
             .RequireAuthorization("IsActive")
             .WithOpenApi();
         
-        group.MapGet("/{id:guid}", async (ITicketMessageService ticketMessageService, [AsParameters] PageQueryFilterDto filterDto, Guid id, CancellationToken ct) =>
+        group.MapGet("", async (ITicketMessageService ticketMessageService, [AsParameters] PageQueryFilterDto filterDto, Guid id, CancellationToken ct) =>
         {
             var result = await ticketMessageService.GetTicketMessagesAsync(filterDto, id, ct);
             
@@ -23,11 +23,11 @@ public static class TicketMessageApi
         .Produces<PaginatedResponseDto<TicketMessageDto>>(StatusCodes.Status200OK, "application/json")
         .WithDescription("Returns a paginated list of messages for a given ticket.");
         
-        group.MapPost("/{id:guid}/add", async (ITicketMessageService ticketMessageService, CreateTicketMessageDto createTicketMessageDto, Guid id, CancellationToken ct) =>
+        group.MapPost("", async (ITicketMessageService ticketMessageService, CreateTicketMessageDto createTicketMessageDto, Guid id, CancellationToken ct) =>
         {
-            var result = await ticketMessageService.CreateTicketMessageAsync(createTicketMessageDto, id, ct);
-            
-            return Results.Ok(result);
+            await ticketMessageService.CreateTicketMessageAsync(createTicketMessageDto, id, ct);
+
+            return Results.Created();
         })
         .Produces(StatusCodes.Status201Created)
         .WithDescription("Adds a new message to the given ticket.");

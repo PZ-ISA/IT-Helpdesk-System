@@ -9,9 +9,12 @@ public static class TicketMessageMappers
     {
         var ticketMessageDto = new TicketMessageDto
         {
+            Id = ticketMessage.Id,
             Message = ticketMessage.Message,
             UserId = ticketMessage.UserId,
-            CreatedAt = ticketMessage.CreatedAt
+            TicketId = ticketMessage.TicketId,
+            CreatedAt = ticketMessage.CreatedAt,
+            UpdatedAt = ticketMessage.UpdatedAt
         };
         
         return ticketMessageDto;
