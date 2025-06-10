@@ -25,7 +25,10 @@
 ef database update --project HelpdeskSystem.Infrastructure/HelpdeskSystem.Infrastructure.csproj --startup-project HelpdeskSystem.API/HelpdeskSystem.API.csproj --context HelpdeskSystem.Infrastructure.Contexts.HelpdeskDbContext --configuration Debug <migration> --connection "<connection_string>"
 ```
 
-**5. Run project**
+**5. SendGrid**
+- Add SendGrid Api Key in the `appsettings.json` file
+
+**6. Run project**
 - If you want to run project from terminal then run this command:
 ```
 dotnet run --project HelpdeskSystem.API
