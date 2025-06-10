@@ -13,7 +13,7 @@ public sealed record ChatBotSession : BaseEntity
     public Guid UserId { get; set; }
 
     public User? User { get; set; }
-    public ICollection<ChatBotMessage>? ChatBotMessages { get; set; }
+    public ICollection<ChatBotMessage> ChatBotMessages { get; set; } = new List<ChatBotMessage>();
 }
 
 public class ChatBotSessionConfiguration : BaseEntityConfiguration<ChatBotSession>

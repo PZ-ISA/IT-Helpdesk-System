@@ -19,7 +19,8 @@ public static class UserApi
 
             return Results.Ok(result);
         })
-        .Produces<UserDto>(StatusCodes.Status200OK, "application/json");
+        .Produces<UserDto>(StatusCodes.Status200OK, "application/json")
+        .WithDescription("Returns the current user's profile information. User must be active.");
 
         group.MapPatch("/change-password", async (IUserService userService, ChangePasswordDto changePasswordDto, CancellationToken ct) =>
         {
@@ -28,7 +29,8 @@ public static class UserApi
             return Results.NoContent();
         })
         .WithRequestValidation<ChangePasswordDto>()
-        .Produces(StatusCodes.Status204NoContent);
+        .Produces(StatusCodes.Status204NoContent)
+        .WithDescription("Changes the password of the current  user.");
         
         group.MapPut("", async (IUserService userService, UpdateUserDto updateUserDto, CancellationToken ct) =>
         {
@@ -37,7 +39,8 @@ public static class UserApi
             return Results.NoContent();
         })
         .WithRequestValidation<UpdateUserDto>()
-        .Produces(StatusCodes.Status204NoContent);
+        .Produces(StatusCodes.Status204NoContent)
+        .WithDescription("Updates the profile data of the current  user.");
 
         return app;
     }
