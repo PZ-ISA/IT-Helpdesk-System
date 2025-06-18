@@ -31,7 +31,7 @@ ef database update --project HelpdeskSystem.Infrastructure/HelpdeskSystem.Infras
 **6. Chatbot**
 - Add Chatbot Api Key from [OpenRouter API key](https://openrouter.ai/keys) in `appsettings.json` file
 
-**6. Run project**
+**7. Run project**
 - If you want to run project from terminal then run this command:
 ```
 dotnet run --project HelpdeskSystem.API
