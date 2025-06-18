@@ -1,26 +1,37 @@
+using System.Net.Http.Json;
+using HelpdeskSystem.Application.Common;
 using HelpdeskSystem.Application.Utils;
 using HelpdeskSystem.Domain.Common;
 using HelpdeskSystem.Domain.Dtos.ChatBot;
+using HelpdeskSystem.Domain.Dtos.ChatBot.Api;
 using HelpdeskSystem.Domain.Dtos.Common;
 using HelpdeskSystem.Domain.Entities;
 using HelpdeskSystem.Domain.Exceptions;
 using HelpdeskSystem.Domain.Interfaces;
 using HelpdeskSystem.Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace HelpdeskSystem.Application.Services;
 
 public class ChatBotService : IChatBotService
 {
+    private const string Url = "http://localhost:3000";
+    
+    private readonly HttpClient _httpClient;
     private readonly HelpdeskDbContext _dbContext;
     private readonly IUserContextService _userContextService;
     private readonly TimeProvider _timeProvider;
     
-    public ChatBotService(HelpdeskDbContext dbContext, IUserContextService userContextService, TimeProvider timeProvider)
+    public ChatBotService(HelpdeskDbContext dbContext, IUserContextService userContextService, TimeProvider timeProvider, HttpClient httpClient, IConfiguration configuration)
     {
         _dbContext = dbContext;
         _userContextService = userContextService;
         _timeProvider = timeProvider;
+        _httpClient = httpClient;
+        
+        _httpClient.BaseAddress = new Uri(Url);
+        _httpClient.DefaultRequestHeaders.Add("x-api-key", configuration.GetSection("ChatBotApiKey").Value);
     }
     
     public async Task<StartSessionResponseDto> StartSessionAsync(ChatBotMessageDto messageDto, CancellationToken ct)
@@ -31,6 +42,8 @@ public class ChatBotService : IChatBotService
             throw new UnauthorizedException("User is not logged in.");
         }
 
+        var chatBotResponseMessage = await GetChatBotResponseMessageAsync(messageDto, null, ct);
+        
         var chatBotSession = new ChatBotSession
         {
             Title = $"Chat - {_timeProvider.GetUtcNow():g}",
@@ -46,8 +59,7 @@ public class ChatBotService : IChatBotService
                 },
                 new()
                 {
-                    //chatbot - to do
-                    Message = "Welcome to chatbot!",
+                    Message = chatBotResponseMessage,
                     IsUserMessage = false
                 }
             }
@@ -56,11 +68,10 @@ public class ChatBotService : IChatBotService
         await _dbContext.ChatBotSessions.AddAsync(chatBotSession, ct);
         await _dbContext.SaveChangesAsync(ct);
         
-        //todo - chatbot
         var response = new StartSessionResponseDto
         {
             SessionId = chatBotSession.Id,
-            Message = "Welcome to the chatbot!",
+            Message = chatBotResponseMessage,
             Date = _timeProvider.GetUtcNow(),
         };
         
@@ -117,6 +128,8 @@ public class ChatBotService : IChatBotService
             throw new BadRequestException("The chatbot session has ended.");
         }
 
+        var chatBotResponseMessage = await GetChatBotResponseMessageAsync(messageDto, chatBotSession.ChatBotMessages, ct);
+        
         chatBotSession.ChatBotMessages.Add(new ChatBotMessage
         {
             CreatedAt = messageDto.Date,
@@ -125,11 +138,9 @@ public class ChatBotService : IChatBotService
             IsUserMessage = true
         });
         
-        //chatbot to do
-        
         chatBotSession.ChatBotMessages.Add(new ChatBotMessage
         {
-            Message = "Welcome to chatbot!",
+            Message = chatBotResponseMessage,
             IsUserMessage = false
         });
         
@@ -137,7 +148,7 @@ public class ChatBotService : IChatBotService
 
         var response = new ChatBotMessageDto
         {
-            Message = "Welcome to chatbot!",
+            Message = chatBotResponseMessage,
             Date = _timeProvider.GetUtcNow(),
         };
         
@@ -233,5 +244,49 @@ public class ChatBotService : IChatBotService
         chatBotSession.UpdatedAt = _timeProvider.GetUtcNow();
         
         await _dbContext.SaveChangesAsync(ct);
+    }
+    
+    private async Task<string> GetChatBotResponseMessageAsync(ChatBotMessageDto messageDto, ICollection<ChatBotMessage>? sessionMessages, CancellationToken ct)
+    {
+        try
+        {
+            var request = new List<ChatBotApiRequest>();
+
+            if (sessionMessages != null && sessionMessages.Count > 0)
+            {
+                var chatBotSessionMessages = sessionMessages
+                    .OrderBy(x => x.CreatedAt)
+                    .Select(x => new ChatBotApiRequest
+                    {
+                        Message = x.Message,
+                        Role = x.IsUserMessage ? ChatBotApiRoles.User : ChatBotApiRoles.ChatBot,
+                    });
+                
+                request.AddRange(chatBotSessionMessages);
+            }
+            
+            request.Add(new ChatBotApiRequest
+            {
+                Role = ChatBotApiRoles.User,
+                Message = messageDto.Message,
+            });
+            
+            var response = await _httpClient.PostAsJsonAsync("/chatbot/ask", request, ct);
+            
+            response.EnsureSuccessStatusCode();
+        
+            var chatBotApiResponse = await response.Content.ReadFromJsonAsync<ChatBotApiResponse>(ct);
+
+            if (chatBotApiResponse == null)
+            {
+                throw new Exception();    
+            }
+            
+            return chatBotApiResponse.Message;
+        }
+        catch
+        {
+            return "Ups... Something went wrong and I can't response for this message :( Please try again later.";            
+        }
     }
 }
