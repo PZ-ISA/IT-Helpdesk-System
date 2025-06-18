@@ -2,8 +2,7 @@ import { z } from "zod";
 
 function validateEnv(): void {
   const zodObject = z.object({
-    CHATBOT_API_KEY: z.string(),
-    PORT: z.string(),
+    PORT: z.number(),
     BACKEND_URL: z.string(),
     BOT_EMAIL: z.string(),
     BOT_PASSWORD: z.string(),

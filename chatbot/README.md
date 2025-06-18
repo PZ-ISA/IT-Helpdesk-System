@@ -18,11 +18,11 @@ Simple chatbot backend using expressjs, integrating with an external backend and
 
 ## Endpoints 🔌
 
-| Method | Path            | Auth Required 🔑 | Description          | Request Body                        | Success Response                       | Status Codes 🔢 |
-| ------ | --------------- | ---------------- | -------------------- | ----------------------------------- | -------------------------------------- | --------------- |
-| `GET`  | `/`             | ❌               | Service health check | `None`                              | `{"content": "all ok"}`                | 200 OK          |
-| `POST` | `/chatbot/auth` | ✅               | Validate API key     | `None`                              | `{"content": "Authorized"}`            | 202 Accepted    |
-| `POST` | `/chatbot/ask`  | ✅               | Get chatbot response | `{"content": "Your question here"}` | `{"content": "Chatbot response here"}` | 200 OK          |
+| Method | Path            | Auth Required 🔑 | Description          | Request Body                   | Success Response                       | Status Codes 🔢 |
+| ------ | --------------- | ---------------- | -------------------- | ------------------------------ | -------------------------------------- | --------------- |
+| `GET`  | `/`             | ❌               | Service health check | `None`                         | `{"content": "all ok"}`                | 200 OK          |
+| `POST` | `/chatbot/auth` | ✅               | Validate API key     | `None`                         | `{"content": "Authorized"}`            | 202 Accepted    |
+| `POST` | `/chatbot/ask`  | ✅               | Get chatbot response | `ChatCompletionMessageParam[]` | `{"content": "Chatbot response here"}` | 200 OK          |
 
 ---
 

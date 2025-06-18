@@ -1,8 +1,9 @@
 import axios from "axios";
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import HttpStatusCode from "../types/HttpStatusCodes";
+import RequestWithApiKey from "../types/RequestApiKey";
 
-export const auth = async (req: Request, res: Response, next: NextFunction) => {
+export const auth = async (req: RequestWithApiKey, res: Response, next: NextFunction) => {
   const apiKey = req.headers["x-api-key"] as string | undefined;
 
   if (!apiKey)
@@ -14,6 +15,7 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
         Authorization: `Bearer ${apiKey}`,
       },
     });
+    req.apiKey = apiKey;
     next();
   } catch {
     return res.json({ content: "Invalid api key" }).status(HttpStatusCode.Unauthorized);

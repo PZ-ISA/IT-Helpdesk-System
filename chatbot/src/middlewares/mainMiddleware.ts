@@ -1,7 +1,7 @@
-import MiddleWare from "../core/middleware";
+import MiddleWareBase from "../core/middleware";
 import express, { NextFunction } from "express";
 
-class MainMiddleWare extends MiddleWare {
+class MainMiddleWare extends MiddleWareBase {
   constructor() {
     super();
     this.globalMiddleWares = [
@@ -12,7 +12,7 @@ class MainMiddleWare extends MiddleWare {
   }
   private handler(req: express.Request, res: express.Response, next: NextFunction): void {
     console.log(
-      ` [ EXPRESS API ] [ METHOD ${req.method} ] [ Client ip: ${req.socket.remoteAddress} ] [ Called API: ${req.path} ] [ DateTime - ${Date()}  ]  `,
+      ` [ API ] [ METHOD ${req.method} ] [ Client ip: ${req.socket.remoteAddress} ] [ Called API: ${req.path} ] [ DateTime - ${Date()}  ] `,
     );
     next();
   }

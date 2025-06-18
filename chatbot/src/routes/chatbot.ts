@@ -3,7 +3,8 @@ import { auth } from "../middlewares/localMiddlewares";
 import ChatbotService from "../services/chatbot";
 import HttpStatusCode from "../types/HttpStatusCodes";
 import Methods from "../types/methods";
-import { Request, Response } from "express";
+import { Response } from "express";
+import RequestWithApiKey from "../types/RequestApiKey";
 
 class ChatbotEndpoint extends EndpointBase {
   path = "/chatbot";
@@ -14,21 +15,20 @@ class ChatbotEndpoint extends EndpointBase {
         path: `${this.path}/ask`,
         router: this.router,
         Method: Methods.POST,
-        handler: this.run.bind(this),
+        handler: this.ask.bind(this),
         localMiddleware: [auth],
       },
     ];
   }
-  private run(req: Request, res: Response) {
-    const { content } = req.body;
 
-    if (!content)
+  private async ask(req: RequestWithApiKey, res: Response) {
+    const conversation = req.body;
+    const apiKey = req.apiKey;
+    if (!conversation)
       return res.json({ content: "invalid body (missing content argument)" }).status(HttpStatusCode.BadRequest);
 
-    if (typeof content != "string")
-      return res.json({ content: "invalid body (content must be string)" }).status(HttpStatusCode.BadRequest);
-
-    const response = new ChatbotService().askAi(content);
+    const chatbot = await ChatbotService.initialize(apiKey);
+    const response = await chatbot.askAi(conversation);
 
     return res.json({ content: response }).status(HttpStatusCode.Ok);
   }

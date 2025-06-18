@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { IMiddleWare } from "../types/IMiddleware";
 
-abstract class MiddleWare {
+abstract class MiddleWareBase {
   public router: Router = Router();
   protected globalMiddleWares: IMiddleWare[] = [];
   public setGlobalMiddleWares(): Router {
@@ -11,4 +11,4 @@ abstract class MiddleWare {
     return this.router;
   }
 }
-export default MiddleWare;
+export default MiddleWareBase;
