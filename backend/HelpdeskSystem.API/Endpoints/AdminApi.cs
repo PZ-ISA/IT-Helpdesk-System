@@ -1,6 +1,7 @@
 ﻿using HelpdeskSystem.API.Extensions;
 using HelpdeskSystem.Domain.Interfaces;
 using HelpdeskSystem.Domain.Common;
+using HelpdeskSystem.Domain.Dtos.Takeover;
 using HelpdeskSystem.Domain.Dtos.Tickets;
 using HelpdeskSystem.Domain.Dtos.Users;
 using HelpdeskSystem.Domain.Enums;
@@ -74,11 +75,53 @@ public static class AdminApi
         .Produces(StatusCodes.Status200OK)
         .WithDescription("Closes the ticket. The ticket must have a status of 'Active' and only the assigned admin can perform this action.");
 
-        group.MapPost("/tickets/takeover", async (IAdminTicketService adminTicketService, CancellationToken ct) =>
+        group.MapGet("/tickets/takeovers/received", async (IAdminTicketTakeoverService adminTicketTakeover, [AsParameters] PageQueryFilterDto filterDto, CancellationToken ct) =>
         {
+            var result = await adminTicketTakeover.GetIncomingTakeoversAsync(filterDto, ct);
             
+            return Results.Ok(result);
         })
-        .Produces(StatusCodes.Status200OK);
+        .WithRequestValidation<PageQueryFilterDto>()
+        .Produces<PaginatedResponseDto<TakeoverDto>>(StatusCodes.Status200OK, "application/json")
+        .WithDescription("Returns a paginated list of takeover requests received by current user. Allowed page sizes [10,25,50,100]");
+        
+        
+        group.MapGet("/tickets/takeovers/sent", async (IAdminTicketTakeoverService adminTicketTakeover, [AsParameters] PageQueryFilterDto filterDto, CancellationToken ct) =>
+        {
+            var result = await adminTicketTakeover.GetOutgoingTakeoversAsync(filterDto, ct);
+        
+            return Results.Ok(result);
+        })
+        .WithRequestValidation<PageQueryFilterDto>()
+        .Produces<PaginatedResponseDto<TakeoverDto>>(StatusCodes.Status200OK, "application/json")
+        .WithDescription("Returns a paginated list of takeover requests created by current user. Allowed page sizes [10,25,50,100]");
+
+        group.MapPost("/tickets/takeovers/{id:guid}/decide", async (IAdminTicketTakeoverService adminTicketTakeover, Guid id, [FromBody] bool decision, CancellationToken ct) =>
+        {
+            await adminTicketTakeover.DecideOnTakeoverRequestAsync(id, decision, ct);
+
+            return Results.Ok();
+        })
+        .Produces(StatusCodes.Status200OK)
+        .WithDescription("Decides on ticket takeover request.");
+        
+        group.MapPost("/tickets/{id:guid}/takeovers", async (IAdminTicketTakeoverService adminTicketTakeover, Guid id, CancellationToken ct) =>
+        {
+            await adminTicketTakeover.CreateTakeoverRequestAsync(id, ct);
+
+            return Results.Created();
+        })
+        .Produces(StatusCodes.Status201Created)
+        .WithDescription("Creates a new ticket takeover request.");
+        
+        group.MapDelete("tickets/takeovers/{id:guid}", async (IAdminTicketTakeoverService adminTicketTakeover, Guid id, CancellationToken ct) =>
+        {
+            await adminTicketTakeover.DeleteTakeoverRequestAsync(id, ct);
+
+            return Results.NoContent();
+        })
+        .Produces(StatusCodes.Status204NoContent)
+        .WithDescription("Deletes a given ticket takeover request.");
         
         return app;
     }
