@@ -1,6 +1,8 @@
-﻿namespace HelpdeskSystem.Domain.Entities;
+﻿using HelpdeskSystem.Domain.Common;
 
-public class Takeover
+namespace HelpdeskSystem.Domain.Entities;
+
+public sealed record Takeover : BaseEntity
 {
-    
+    public required Guid AdminUserId { get; set; }
 }

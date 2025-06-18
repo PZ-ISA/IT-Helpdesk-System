@@ -1,6 +1,21 @@
-﻿namespace HelpdeskSystem.Application.Services;
+﻿using HelpdeskSystem.Domain.Interfaces;
 
-public class AdminTicketTakeoverService
+namespace HelpdeskSystem.Application.Services;
+
+public class AdminTicketTakeoverService : IAdminTicketTakeoverService
 {
-    
+    public Task GetActiveTakeoverRequestsAsync(CancellationToken ct)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task CreateTakeoverRequestAsync(Guid id, CancellationToken ct)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task DeleteTakeoverRequestAsync(Guid id, CancellationToken ct)
+    {
+        throw new NotImplementedException();
+    }
 }

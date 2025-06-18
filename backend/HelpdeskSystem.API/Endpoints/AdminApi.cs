@@ -73,6 +73,12 @@ public static class AdminApi
         })
         .Produces(StatusCodes.Status200OK)
         .WithDescription("Closes the ticket. The ticket must have a status of 'Active' and only the assigned admin can perform this action.");
+
+        group.MapPost("/tickets/takeover", async (IAdminTicketService adminTicketService, CancellationToken ct) =>
+        {
+            
+        })
+        .Produces(StatusCodes.Status200OK);
         
         return app;
     }
