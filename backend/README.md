@@ -28,6 +28,9 @@ ef database update --project HelpdeskSystem.Infrastructure/HelpdeskSystem.Infras
 **5. SendGrid**
 - Add SendGrid Api Key in the `appsettings.json` file
 
+**6. Chatbot**
+- Add Chatbot Api Key from [OpenRouter API key](https://openrouter.ai/keys) in `appsettings.json` file
+
 **6. Run project**
 - If you want to run project from terminal then run this command:
 ```

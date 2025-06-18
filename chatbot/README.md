@@ -10,9 +10,14 @@ Simple chatbot backend using expressjs, integrating with an external backend and
 - `npm install` - install all dependencies
 - `npm run build` - Building
 
+#### Updating .env
+
+- Configure `.env` file
+
 #### running project
 
 - `npm run start`
+- **IMPORTANT** --- Make sure that app is running on PORT 3000
 
 ## API Reference
 
