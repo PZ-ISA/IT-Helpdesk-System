@@ -8,9 +8,10 @@ public static class CorsExtensions
         {
             options.AddPolicy("FrontendClient", policy =>
             {
-                policy.AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader();
+                policy.WithOrigins("http://localhost:5173")
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials();
             });
         });
     }

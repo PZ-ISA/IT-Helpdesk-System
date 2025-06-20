@@ -1,6 +1,15 @@
-import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { Link, useNavigate } from 'react-router-dom';
 
 const NavBar = () => {
+	const navigate = useNavigate();
+	const { logout } = useAuth();
+
+	const handleLogout = () => {
+		logout();
+		navigate('/');
+	};
+
 	return (
 		<nav className='fixed h-screen w-64 bg-black text-white p-6 flex flex-col'>
 			<div className='text-2xl font-bold mb-8'>IT Support</div>
@@ -12,6 +21,13 @@ const NavBar = () => {
 				<NavItem to='/main/Chat' label='Chat' />
 				<NavItem to='/main/Users' label='Users' />
 			</ul>
+
+			<button
+				onClick={handleLogout}
+				className='mt-6 p-3 bg-red-600 hover:bg-red-700 rounded-lg text-white font-bold transition'
+			>
+				Logout
+			</button>
 		</nav>
 	);
 };

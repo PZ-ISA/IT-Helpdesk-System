@@ -1,7 +1,7 @@
 // src/services/authService.ts
 import axios from 'axios';
 
-const API_URL = 'https://localhost:5000/api';
+const API_URL = 'http://localhost:5000/api';
 
 export const register = async (userData: {
 	name: string;
@@ -12,6 +12,7 @@ export const register = async (userData: {
 	confirmPassword: string;
 }) => {
 	try {
+		console.log('Sending register data:', userData);
 		const response = await axios.post(`${API_URL}/register`, userData, {
 			headers: {
 				'Content-Type': 'application/json',
@@ -20,6 +21,7 @@ export const register = async (userData: {
 		});
 		return response.data;
 	} catch (error) {
+		console.error(error);
 		if (axios.isAxiosError(error)) {
 			throw new Error(
 				error.response?.data?.message || 'Registration failed'
@@ -39,6 +41,7 @@ export const login = async (userData: { email: string; password: string }) => {
 		});
 		return response.data;
 	} catch (error) {
+		console.error(error);
 		if (axios.isAxiosError(error)) {
 			throw new Error(error.response?.data?.message || 'Login failed');
 		}
