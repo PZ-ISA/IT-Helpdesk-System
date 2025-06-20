@@ -96,14 +96,14 @@ public static class AdminApi
         .Produces<PaginatedResponseDto<TakeoverDto>>(StatusCodes.Status200OK, "application/json")
         .WithDescription("Returns a paginated list of takeover requests created by current user. Allowed page sizes [10,25,50,100]");
 
-        group.MapPost("/tickets/takeovers/{id:guid}/decide", async (IAdminTicketTakeoverService adminTicketTakeover, Guid id, [FromBody] bool decision, CancellationToken ct) =>
+        group.MapPost("/tickets/takeovers/{id:guid}/decide", async (IAdminTicketTakeoverService adminTicketTakeover, Guid id, [FromBody] TakeoverDecisionDto takeoverDecisionDto, CancellationToken ct) =>
         {
-            await adminTicketTakeover.DecideOnTakeoverRequestAsync(id, decision, ct);
+            await adminTicketTakeover.DecideOnTakeoverRequestAsync(id, takeoverDecisionDto, ct);
 
             return Results.Ok();
         })
         .Produces(StatusCodes.Status200OK)
-        .WithDescription("Decides on ticket takeover request.");
+        .WithDescription("Decides on ticket takeover request. Only the user assigned to the related ticket is allowed to decide.");
         
         group.MapPost("/tickets/{id:guid}/takeovers", async (IAdminTicketTakeoverService adminTicketTakeover, Guid id, CancellationToken ct) =>
         {
@@ -112,7 +112,12 @@ public static class AdminApi
             return Results.Created();
         })
         .Produces(StatusCodes.Status201Created)
-        .WithDescription("Creates a new ticket takeover request.");
+        .WithDescription("""
+                         Creates a new ticket takeover request.
+                         - Ticket must have admin assigned.
+                         - Can not create ticket takeover request if user is already assigned to this ticket.
+                         - Ticket can not be closed.
+                         """);
         
         group.MapDelete("tickets/takeovers/{id:guid}", async (IAdminTicketTakeoverService adminTicketTakeover, Guid id, CancellationToken ct) =>
         {
@@ -121,7 +126,7 @@ public static class AdminApi
             return Results.NoContent();
         })
         .Produces(StatusCodes.Status204NoContent)
-        .WithDescription("Deletes a given ticket takeover request.");
+        .WithDescription("Deletes a given ticket takeover request. Only the user who created the request can delete it.");
         
         return app;
     }

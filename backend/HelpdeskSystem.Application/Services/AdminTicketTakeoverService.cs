@@ -3,6 +3,7 @@ using HelpdeskSystem.Application.Utils;
 using HelpdeskSystem.Domain.Common;
 using HelpdeskSystem.Domain.Dtos.Takeover;
 using HelpdeskSystem.Domain.Entities;
+using HelpdeskSystem.Domain.Enums;
 using HelpdeskSystem.Domain.Exceptions;
 using HelpdeskSystem.Domain.Interfaces;
 using HelpdeskSystem.Infrastructure.Contexts;
@@ -68,7 +69,7 @@ public class AdminTicketTakeoverService : IAdminTicketTakeoverService
         return result;
     }
 
-    public async Task DecideOnTakeoverRequestAsync(Guid takeoverId, bool decision, CancellationToken ct)
+    public async Task DecideOnTakeoverRequestAsync(Guid takeoverId, TakeoverDecisionDto takeoverDecisionDto, CancellationToken ct)
     {
         var userId = _userContextService.GetCurrentUserId();
         if (userId == null)
@@ -84,10 +85,10 @@ public class AdminTicketTakeoverService : IAdminTicketTakeoverService
 
         if (takeover.Ticket.AdminUserId != userId)
         {
-            throw new BadRequestException("You are not allowed to decide on this takeover request.");
+            throw new ForbidException("You are not allowed to decide on this takeover request.");
         }
 
-        if (decision == true)
+        if (takeoverDecisionDto.Decision == true)
         {
             takeover.Ticket.AdminUserId = takeover.AdminUserId;
         }
@@ -119,6 +120,11 @@ public class AdminTicketTakeoverService : IAdminTicketTakeoverService
         {
             throw new BadRequestException("You are already assigned to this ticket.");
         }
+
+        if (ticket.Status == TicketStatus.Closed)
+        {
+            throw new BadRequestException("Ticket is closed.");
+        }
         
         var takeover = new Takeover
         {
@@ -147,7 +153,7 @@ public class AdminTicketTakeoverService : IAdminTicketTakeoverService
 
         if (takeover.AdminUserId != userId)
         {
-            throw new BadRequestException("You are not allowed to delete this ticket.");
+            throw new ForbidException("You are not allowed to delete this ticket.");
         }
         
         _dbContext.Takeovers.Remove(takeover);

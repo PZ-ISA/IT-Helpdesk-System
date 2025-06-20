@@ -7,7 +7,7 @@ public interface IAdminTicketTakeoverService
 {
     Task<PaginatedResponseDto<TakeoverDto>> GetIncomingTakeoversAsync(PageQueryFilterDto filterDto, CancellationToken ct);
     Task<PaginatedResponseDto<TakeoverDto>> GetOutgoingTakeoversAsync(PageQueryFilterDto filterDto, CancellationToken ct);
-    Task DecideOnTakeoverRequestAsync(Guid takeoverId, bool decision, CancellationToken ct);
+    Task DecideOnTakeoverRequestAsync(Guid takeoverId, TakeoverDecisionDto takeoverDecision, CancellationToken ct);
     Task CreateTakeoverRequestAsync(Guid id, CancellationToken ct);
     Task DeleteTakeoverRequestAsync(Guid id, CancellationToken ct);
 }

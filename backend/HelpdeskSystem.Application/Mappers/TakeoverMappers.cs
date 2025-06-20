@@ -13,6 +13,8 @@ public static class TakeoverMappers
             Id = takeover.Id,
             AdminUserId = takeover.AdminUserId,
             TicketId = takeover.TicketId,
+            CreatedAt = takeover.CreatedAt,
+            UpdatedAt = takeover.UpdatedAt,
         };
         
         return takeoverDto;
