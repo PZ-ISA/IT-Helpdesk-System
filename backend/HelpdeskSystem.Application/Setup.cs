@@ -50,5 +50,6 @@ public static class Setup
         builder.Services.AddScoped<IAdminTicketService, AdminTicketService>();
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<ITicketMessageService, TicketMessageService>();
+        builder.Services.AddScoped<IAdminTicketTakeoverService, AdminTicketTakeoverService>();
     }
 }
