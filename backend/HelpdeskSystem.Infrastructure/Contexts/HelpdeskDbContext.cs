@@ -14,6 +14,7 @@ public class HelpdeskDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gui
 
     public DbSet<Ticket> Tickets { get; set; }
     public DbSet<TicketMessage> TicketMessages { get; set; }
+    public DbSet<Takeover> Takeovers { get; set; }
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<EmailLog> EmailLogs { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
