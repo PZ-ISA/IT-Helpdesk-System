@@ -4,14 +4,14 @@ using HelpdeskSystem.Application.Utils;
 using HelpdeskSystem.Domain.Common;
 using HelpdeskSystem.Domain.Dtos.TicketMessages;
 using HelpdeskSystem.Domain.Entities;
-using HelpdeskSystem.Domain.Enums;
 using HelpdeskSystem.Domain.Exceptions;
+using HelpdeskSystem.Domain.Hubs;
 using HelpdeskSystem.Domain.Interfaces;
 using HelpdeskSystem.Infrastructure.Contexts;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using SendGrid;
-using SendGrid.Helpers.Mail.Model;
+using HelpdeskSystem.Application.Templates;
 
 namespace HelpdeskSystem.Application.Services;
 
@@ -22,14 +22,18 @@ public class TicketMessageService : ITicketMessageService
     private readonly UserManager<User> _userManager;
     private readonly ISendGridService _sendGridService;
     private readonly TemplateService _templateService;
+    private readonly IHubContext<NotificationHub, INotificationClient> _hubContext;
+    private readonly TimeProvider _timeProvider;
 
-    public TicketMessageService(IUserContextService userContextService, HelpdeskDbContext dbContext, UserManager<User> userManager, ISendGridService sendGridService, TemplateService templateService)
+    public TicketMessageService(IUserContextService userContextService, HelpdeskDbContext dbContext, UserManager<User> userManager, ISendGridService sendGridService, TemplateService templateService, IHubContext<NotificationHub, INotificationClient> hubContext, TimeProvider timeProvider)
     {
         _dbContext = dbContext;
         _userContextService = userContextService;
         _userManager = userManager;
         _sendGridService = sendGridService;
         _templateService = templateService;
+        _hubContext = hubContext;
+        _timeProvider = timeProvider;
     }
     
     public async Task<PaginatedResponseDto<TicketMessageDto>> GetTicketMessagesAsync(PageQueryFilterDto filterDto, Guid ticketId, CancellationToken ct)
@@ -90,8 +94,12 @@ public class TicketMessageService : ITicketMessageService
             throw new ForbidException("Insufficient permissions to access this ticket.");
         }
 
+        Guid receiverUserId;
+        
         if (role == "Admin")
         {
+            receiverUserId = ticket.EmployeeUserId;
+            
             var employeeUserId = ticket.EmployeeUserId;
             
             var employeeUser = _dbContext.Users.FirstOrDefault(x => x.Id == employeeUserId);
@@ -117,6 +125,12 @@ public class TicketMessageService : ITicketMessageService
                 template
             );
         }
+        
+        receiverUserId = ticket.AdminUserId.Value;
+        
+        var notificationDto = NotificationTemplate.CreateNotificationDto(createTicketMessageDto.Message, receiverUserId, _timeProvider.GetUtcNow());
+
+        await _hubContext.Clients.User(receiverUserId.ToString()!).SendNotificationAsync(notificationDto);
 
         ticket.TicketMessages.Add(new TicketMessage
         {

@@ -17,6 +17,8 @@ builder.Services.ConfigureCulture();
 
 builder.Services.AddCorsPolicy();
 
+builder.Services.AddSignalR();
+
 var app = builder.Build();
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
