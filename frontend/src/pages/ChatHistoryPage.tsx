@@ -163,13 +163,13 @@ const ChatHistoryPage = () => {
 
 		if (!jwtToken) return;
 
-		setIsClosingSession(session.sessionId); // Ustawienie, która sesja jest zamykana
+		setIsClosingSession(session.id); // Ustawienie, która sesja jest zamykana
 
 		try {
 			const feedbackScore = 1; // Tutaj możesz pobrać wartość od użytkownika
 
 			await ChatService.endChatbotSession(
-				session.sessionId,
+				session.id,
 				jwtToken,
 				feedbackScore
 			);
@@ -298,7 +298,7 @@ const ChatHistoryPage = () => {
 						const isDisabled = isSessionDisabled(session);
 						return (
 							<div
-								key={session.sessionId}
+								key={session.id}
 								className={`flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 border border-gray-200 rounded-lg shadow-sm transition 
                                     ${
 										isDisabled
@@ -306,10 +306,7 @@ const ChatHistoryPage = () => {
 											: 'hover:shadow-md cursor-pointer'
 									}`}
 								onClick={() =>
-									handleOpenChat(
-										session.sessionId,
-										isDisabled
-									)
+									handleOpenChat(session.id, isDisabled)
 								}
 							>
 								<div className='flex-1 mb-2 sm:mb-0'>
@@ -344,8 +341,7 @@ const ChatHistoryPage = () => {
 											className='px-3 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600 transition'
 											disabled={isDisabled === true}
 										>
-											{isClosingSession ===
-											session.sessionId
+											{isClosingSession === session.id
 												? 'Zamykanie...'
 												: 'Zamknij'}
 										</button>

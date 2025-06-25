@@ -7,7 +7,7 @@ const API_URL = 'http://localhost:5000/api';
 
 // Podstawowy typ sesji czatu
 export type ChatSession = {
-	sessionId: string;
+	id: string;
 	title: string;
 	createdAt: string;
 	endedAt: string | null;
