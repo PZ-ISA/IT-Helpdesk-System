@@ -2,8 +2,9 @@ export type Ticket = {
 	id: string;
 	title: string;
 	description: string;
-	status: 'Open' | 'Closed';
+	status: number;
 	createdAt: string;
+	updatedAt: string;
 	employeeId?: string;
 	adminId?: string;
 };
