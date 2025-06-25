@@ -5,6 +5,6 @@ export type Ticket = {
 	status: number;
 	createdAt: string;
 	updatedAt: string;
-	employeeId?: string;
-	adminId?: string;
+	employeeUserId?: string;
+	adminUserId?: string;
 };

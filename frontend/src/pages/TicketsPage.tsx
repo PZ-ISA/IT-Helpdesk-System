@@ -164,14 +164,6 @@ const TicketsPage = () => {
 		<div className='space-y-6'>
 			<div className='flex flex-col sm:flex-row justify-between items-center gap-4'>
 				<h1 className='text-2xl font-bold'>Tickets</h1>
-				<div className='flex items-center gap-3'>
-					<button
-						onClick={() => navigate('/main/tickets/new')}
-						className='px-4 py-2 bg-blue-600 text-white rounded-md rounded-lg hover:bg-blue-700 transition'
-					>
-						+ Create New Ticket
-					</button>
-				</div>
 			</div>
 
 			{/* Filtry statusu */}

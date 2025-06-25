@@ -8,16 +8,32 @@ import ChatbotPage from './pages/ChatbotPage'; // Your individual chat session c
 import TicketsPage from './pages/TicketsPage';
 import CreateTicketForm from './components/CreateTicketForm';
 import ChatHistoryPage from './pages/ChatHistoryPage';
+import UserProfilePage from './pages/UserProfilePage';
+import UserTicketsPage from './pages/UsersTicketsPage';
+import NotificationsPage from './pages/NotificationsPage';
 
 function App() {
 	return (
 		<BrowserRouter>
 			<Routes>
 				<Route path='/' element={<AuthPage />} />
+				<Route path='login' element={<AuthPage />} />
 				<Route element={<PrivateRoute />}>
 					<Route path='/main' element={<MainLayout />}>
 						<Route path='profile' element={<ProfilePage />} />
 						<Route path='users' element={<UsersPage />} />
+						<Route
+							path='notifications'
+							element={<NotificationsPage />}
+						/>
+						<Route
+							path='userTickets'
+							element={<UserTicketsPage />}
+						/>
+						<Route
+							path='userProfile'
+							element={<UserProfilePage />}
+						/>
 						<Route
 							path='chat-history'
 							element={<ChatHistoryPage />}
