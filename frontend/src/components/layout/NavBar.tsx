@@ -18,8 +18,8 @@ const NavBar = () => {
 			<ul className='space-y-2 flex-1'>
 				<NavItem to='/main/Profile' label='Profile' />
 				<NavItem to='/main/Tickets' label='Tickets' />
-				<NavItem to='/main/Chat' label='Chat' />
 				<NavItem to='/main/Users' label='Users' />
+				<NavItem to='/main/Chat-history' label='Chat History' />
 			</ul>
 
 			<button
