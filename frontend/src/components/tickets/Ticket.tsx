@@ -51,10 +51,6 @@ const Ticket = ({ ticket, onTicketUpdate }: TicketProps) => {
 
 			// Step 3: Call onTicketUpdate with the optimistically updated ticket
 			onTicketUpdate(optimisticallyUpdatedTicket);
-
-			alert(
-				`Ticket "${optimisticallyUpdatedTicket.title}" optimistically assigned!`
-			);
 		} catch (error: any) {
 			// If an error occurs (e.g., 403 Forbidden, network error), show error and revert implicitly
 			console.error('Failed to assign ticket:', error);

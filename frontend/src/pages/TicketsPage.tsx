@@ -5,18 +5,20 @@ import Ticket from '../components/tickets/Ticket';
 import type { Ticket as TicketType } from '../types/types';
 import TicketService from '../services/TicketService'; // Ensure this import is correct
 
+// Typ dla filtra statusu
+type StatusFilter = 'all' | 'open' | 'assigned' | 'closed';
+type SortOption = 'newest' | 'oldest' | 'open' | 'closed';
+
 const TicketsPage = () => {
-	const { jwtToken, role, logout } = useAuth(); // Keep 'role' for potential UI logic or future checks
+	const { jwtToken, role, logout } = useAuth();
 	const navigate = useNavigate();
 
 	const [tickets, setTickets] = useState<TicketType[]>([]);
-	const [sortBy, setSortBy] = useState<
-		'newest' | 'oldest' | 'open' | 'closed'
-	>('newest');
+	const [filteredTickets, setFilteredTickets] = useState<TicketType[]>([]);
+	const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+	const [sortBy, setSortBy] = useState<SortOption>('newest');
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-
-	type SortOption = 'newest' | 'oldest' | 'open' | 'closed';
 
 	const handleTicketUpdate = useCallback((updatedTicket: TicketType) => {
 		setTickets((prevTickets) =>
@@ -26,11 +28,34 @@ const TicketsPage = () => {
 		);
 	}, []);
 
+	// Funkcja do filtrowania ticketów na podstawie statusu
+	const filterTickets = useCallback(
+		(tickets: TicketType[], filter: StatusFilter) => {
+			switch (filter) {
+				case 'open':
+					return tickets.filter((ticket) => ticket.status === 0);
+				case 'assigned':
+					return tickets.filter((ticket) => ticket.status === 1);
+				case 'closed':
+					return tickets.filter((ticket) => ticket.status === 2);
+				case 'all':
+				default:
+					return tickets;
+			}
+		},
+		[]
+	);
+
+	// Aktualizuj przefiltrowane tickety gdy zmieni się filtr lub tickety
+	useEffect(() => {
+		setFilteredTickets(filterTickets(tickets, statusFilter));
+	}, [tickets, statusFilter, filterTickets]);
+
 	useEffect(() => {
 		// Debugging logs (you can remove these once it's working)
 		console.log('TicketsPage useEffect triggered.');
 		console.log('Current jwtToken state:', jwtToken ? 'Present' : 'NULL');
-		console.log('Current role state:', role); // Still good to know the current role
+		console.log('Current role state:', role);
 
 		if (!jwtToken) {
 			console.log('No JWT token, navigating to /login.');
@@ -82,15 +107,15 @@ const TicketsPage = () => {
 					setError('Failed to load tickets. Please try again later.');
 				}
 			} finally {
-				// Corrected typo: setIsLoadi should be setIsLoading
 				setIsLoading(false);
 			}
 		};
 
 		fetchTickets();
-	}, [jwtToken, role, navigate, logout]); // Keep role in dependencies if you use the optional 'Admin' check
+	}, [jwtToken, role, navigate, logout]);
 
-	const sorted = [...tickets].sort((a, b) => {
+	// Sortowanie przefiltrowanych ticketów
+	const sorted = [...filteredTickets].sort((a, b) => {
 		switch (sortBy) {
 			case 'newest':
 				return (
@@ -111,24 +136,35 @@ const TicketsPage = () => {
 		}
 	});
 
+	// Funkcja do obsługi zmiany filtra
+	const handleFilterChange = (filter: StatusFilter) => {
+		setStatusFilter(filter);
+	};
+
+	// Funkcja do mapowania statusu na tekst
+	const getStatusText = (status: number): string => {
+		switch (status) {
+			case 0:
+				return 'Open';
+			case 1:
+				return 'Assigned';
+			case 2:
+				return 'Closed';
+			default:
+				return 'Unknown';
+		}
+	};
+
+	// Policz tickety dla każdego statusu
+	const openTickets = tickets.filter((ticket) => ticket.status === 0);
+	const assignedTickets = tickets.filter((ticket) => ticket.status === 1);
+	const closedTickets = tickets.filter((ticket) => ticket.status === 2);
+
 	return (
 		<div className='space-y-6'>
 			<div className='flex flex-col sm:flex-row justify-between items-center gap-4'>
 				<h1 className='text-2xl font-bold'>Tickets</h1>
 				<div className='flex items-center gap-3'>
-					<label className='text-gray-600'>Sort by:</label>
-					<select
-						value={sortBy}
-						onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-							setSortBy(e.target.value as SortOption)
-						}
-						className='px-3 py-2 border rounded-md rounded-lg'
-					>
-						<option value='newest'>Newest</option>
-						<option value='oldest'>Oldest</option>
-						<option value='open'>Open</option>
-						<option value='closed'>Closed</option>
-					</select>
 					<button
 						onClick={() => navigate('/main/tickets/new')}
 						className='px-4 py-2 bg-blue-600 text-white rounded-md rounded-lg hover:bg-blue-700 transition'
@@ -136,6 +172,65 @@ const TicketsPage = () => {
 						+ Create New Ticket
 					</button>
 				</div>
+			</div>
+
+			{/* Filtry statusu */}
+			<div className='bg-white rounded-lg shadow-sm p-4 border'>
+				<div className='flex flex-wrap gap-2 mb-4'>
+					<button
+						onClick={() => handleFilterChange('all')}
+						className={`px-4 py-2 rounded-lg font-medium transition ${
+							statusFilter === 'all'
+								? 'bg-blue-600 text-white'
+								: 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+						}`}
+					>
+						All ({tickets.length})
+					</button>
+					<button
+						onClick={() => handleFilterChange('open')}
+						className={`px-4 py-2 rounded-lg font-medium transition ${
+							statusFilter === 'open'
+								? 'bg-green-600 text-white'
+								: 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+						}`}
+					>
+						Open ({openTickets.length})
+					</button>
+					<button
+						onClick={() => handleFilterChange('assigned')}
+						className={`px-4 py-2 rounded-lg font-medium transition ${
+							statusFilter === 'assigned'
+								? 'bg-yellow-600 text-white'
+								: 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+						}`}
+					>
+						Assigned ({assignedTickets.length})
+					</button>
+					<button
+						onClick={() => handleFilterChange('closed')}
+						className={`px-4 py-2 rounded-lg font-medium transition ${
+							statusFilter === 'closed'
+								? 'bg-gray-600 text-white'
+								: 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+						}`}
+					>
+						Closed ({closedTickets.length})
+					</button>
+				</div>
+
+				{/* Aktualnie wyświetlany filtr */}
+				<p className='text-sm text-gray-600'>
+					Showing: {filteredTickets.length} of {tickets.length}{' '}
+					tickets
+					{statusFilter !== 'all' && (
+						<span className='ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs'>
+							Filter:{' '}
+							{statusFilter.charAt(0).toUpperCase() +
+								statusFilter.slice(1)}
+						</span>
+					)}
+				</p>
 			</div>
 
 			{isLoading ? (
@@ -158,7 +253,9 @@ const TicketsPage = () => {
 						))
 					) : (
 						<div className='text-gray-500 text-center p-4 border border-gray-300 bg-gray-50 rounded-md'>
-							No tickets found.
+							{statusFilter === 'all'
+								? 'No tickets found.'
+								: `No ${statusFilter} tickets found.`}
 						</div>
 					)}
 				</div>
