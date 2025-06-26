@@ -13,6 +13,7 @@ public static class RegisterEndpointsExtensions
             .MapAdminApi()
             .MapUserApi()
             .MapTicketMessageApi()
+            .MapNotificationApi()
             .MapExportDataApi();
     }
 }
